@@ -1,0 +1,16 @@
+2026-05-13 17:09:25 | INFO | =================================================================
+2026-05-13 17:09:25 | INFO | FUTBOLCU OYUN STİLİ ANALİZ SİSTEMİ BAŞLADI
+2026-05-13 17:09:25 | INFO | Çalışma ID : 20260513_170925
+2026-05-13 17:09:25 | INFO | Çıktı klasörü: C:\Users\berks\Desktop\futbolcu_analiz\Futbolcu_Analizi\cikti_20260513_170925
+2026-05-13 17:09:25 | INFO | =================================================================
+2026-05-13 17:09:25 | INFO | Veriler yükleniyor...
+2026-05-13 17:09:25 | INFO | temiz_veri.csv  → 1832 satır, 20 sütun
+2026-05-13 17:09:25 | INFO | futbolcular.csv → 1832 oyuncu (eşleştirilmiş)
+2026-05-13 17:09:25 | INFO | Oyuncu sütunu: Player
+2026-05-13 17:09:25 | INFO | Seçilen feature sayısı: 20
+2026-05-13 17:09:25 | INFO | 
+✓ BAŞLANGIÇ BAŞARILANDI
+2026-05-13 17:09:25 | INFO | ✓ Klasörler oluşturuldu: C:\Users\berks\Desktop\futbolcu_analiz\Futbolcu_Analizi\cikti_20260513_170925
+2026-05-13 17:09:25 | INFO | ✓ Veri yüklendi: (1832, 20)
+2026-05-13 17:09:25 | INFO | ✓ Oyuncular eşleştirildi: 1832
+2026-05-13 17:09:25 | INFO | =================================================================

@@ -1,0 +1,134 @@
+2026-05-13 16:06:15 | INFO | =================================================================
+2026-05-13 16:06:15 | INFO | FUTBOLCU OYUN STİLİ ANALİZ SİSTEMİ BAŞLADI
+2026-05-13 16:06:15 | INFO | Çalışma ID : 20260513_160615
+2026-05-13 16:06:15 | INFO | Çıktı klasörü: c:\Users\berks\Desktop\futbolcu_analiz\Futbolcu_Analizi\cikti_20260513_160615
+2026-05-13 16:06:15 | INFO | =================================================================
+2026-05-13 16:06:15 | INFO | Veriler yükleniyor...
+2026-05-13 16:06:16 | INFO | temiz_veri.csv  → 1832 satır, 20 sütun
+2026-05-13 16:06:16 | INFO | futbolcular.csv → 1832 oyuncu (eşleştirilmiş)
+2026-05-13 16:06:16 | INFO | Oyuncu sütunu: Player
+2026-05-13 16:06:16 | INFO | Seçilen feature sayısı: 20
+2026-05-13 16:06:16 | INFO | Eksik veriler temizleniyor...
+2026-05-13 16:06:16 | INFO |   Sonsuz değer sayısı: 0
+2026-05-13 16:06:16 | INFO |   NaN sayısı (önce)  : 29
+2026-05-13 16:06:16 | INFO |   NaN sayısı (sonra) : 0
+2026-05-13 16:06:16 | INFO | RobustScaler uygulanıyor...
+2026-05-13 16:06:16 | INFO |   Ölçeklenmiş boyut: (1832, 20)
+2026-05-13 16:06:16 | INFO | Veri train / val / test olarak bölünüyor (70 / 15 / 15)...
+2026-05-13 16:06:16 | INFO |   Train boyutu: 1282
+2026-05-13 16:06:16 | INFO |   Val   boyutu: 275
+2026-05-13 16:06:16 | INFO |   Test  boyutu: 275
+2026-05-13 16:06:33 | INFO | Model oluşturuldu | Latent dim: 8 | Parametre: 8,572
+2026-05-13 16:06:33 | INFO | Model eğitimi başlıyor...
+2026-05-13 16:06:37 | INFO | Epoch [  1/20] | Train MSE: 0.553745 | Val MSE: 0.562732 | Best Val: 0.562732 | LR: 0.001000 | Patience: 0/5 ✓ YENİ EN İYİ
+2026-05-13 16:06:37 | INFO | Epoch [  2/20] | Train MSE: 0.297578 | Val MSE: 0.238547 | Best Val: 0.238547 | LR: 0.001000 | Patience: 0/5 ✓ YENİ EN İYİ
+2026-05-13 16:06:37 | INFO | Epoch [  3/20] | Train MSE: 0.249873 | Val MSE: 0.216436 | Best Val: 0.216436 | LR: 0.001000 | Patience: 0/5 ✓ YENİ EN İYİ
+2026-05-13 16:06:38 | INFO | Epoch [  4/20] | Train MSE: 0.241335 | Val MSE: 0.203163 | Best Val: 0.203163 | LR: 0.001000 | Patience: 0/5 ✓ YENİ EN İYİ
+2026-05-13 16:06:38 | INFO | Epoch [  5/20] | Train MSE: 0.237568 | Val MSE: 0.179057 | Best Val: 0.179057 | LR: 0.001000 | Patience: 0/5 ✓ YENİ EN İYİ
+2026-05-13 16:06:38 | INFO | Epoch [  6/20] | Train MSE: 0.223088 | Val MSE: 0.179063 | Best Val: 0.179057 | LR: 0.001000 | Patience: 1/5 
+2026-05-13 16:06:38 | INFO | Epoch [  7/20] | Train MSE: 0.220643 | Val MSE: 0.168637 | Best Val: 0.168637 | LR: 0.001000 | Patience: 0/5 ✓ YENİ EN İYİ
+2026-05-13 16:06:39 | INFO | Epoch [  8/20] | Train MSE: 0.202338 | Val MSE: 0.171561 | Best Val: 0.168637 | LR: 0.001000 | Patience: 1/5 
+2026-05-13 16:06:39 | INFO | Epoch [  9/20] | Train MSE: 0.216437 | Val MSE: 0.169672 | Best Val: 0.168637 | LR: 0.001000 | Patience: 2/5 
+2026-05-13 16:06:39 | INFO | Epoch [ 10/20] | Train MSE: 0.207227 | Val MSE: 0.161861 | Best Val: 0.161861 | LR: 0.001000 | Patience: 0/5 ✓ YENİ EN İYİ
+2026-05-13 16:06:39 | INFO | Epoch [ 11/20] | Train MSE: 0.201181 | Val MSE: 0.169182 | Best Val: 0.161861 | LR: 0.001000 | Patience: 1/5 
+2026-05-13 16:06:39 | INFO | Epoch [ 12/20] | Train MSE: 0.199881 | Val MSE: 0.146032 | Best Val: 0.146032 | LR: 0.001000 | Patience: 0/5 ✓ YENİ EN İYİ
+2026-05-13 16:06:40 | INFO | Epoch [ 13/20] | Train MSE: 0.193610 | Val MSE: 0.150926 | Best Val: 0.146032 | LR: 0.001000 | Patience: 1/5 
+2026-05-13 16:06:40 | INFO | Epoch [ 14/20] | Train MSE: 0.186973 | Val MSE: 0.149442 | Best Val: 0.146032 | LR: 0.001000 | Patience: 2/5 
+2026-05-13 16:06:40 | INFO | Epoch [ 15/20] | Train MSE: 0.181275 | Val MSE: 0.140290 | Best Val: 0.140290 | LR: 0.001000 | Patience: 0/5 ✓ YENİ EN İYİ
+2026-05-13 16:06:40 | INFO | Epoch [ 16/20] | Train MSE: 0.191763 | Val MSE: 0.134239 | Best Val: 0.134239 | LR: 0.001000 | Patience: 0/5 ✓ YENİ EN İYİ
+2026-05-13 16:06:40 | INFO | Epoch [ 17/20] | Train MSE: 0.184833 | Val MSE: 0.141520 | Best Val: 0.134239 | LR: 0.001000 | Patience: 1/5 
+2026-05-13 16:06:41 | INFO | Epoch [ 18/20] | Train MSE: 0.199975 | Val MSE: 0.162448 | Best Val: 0.134239 | LR: 0.001000 | Patience: 2/5 
+2026-05-13 16:06:41 | INFO | Epoch [ 19/20] | Train MSE: 0.184901 | Val MSE: 0.123952 | Best Val: 0.123952 | LR: 0.001000 | Patience: 0/5 ✓ YENİ EN İYİ
+2026-05-13 16:06:41 | INFO | Epoch [ 20/20] | Train MSE: 0.185532 | Val MSE: 0.139192 | Best Val: 0.123952 | LR: 0.001000 | Patience: 1/5 
+2026-05-13 16:06:41 | INFO | Eğitim tamamlandı | Süre: 8.2s | En iyi val loss: 0.123952
+2026-05-13 16:06:41 | INFO | TEST MSE (görülmemiş veri): 0.103842
+2026-05-13 16:06:42 | INFO | Grafik kaydedildi → c:\Users\berks\Desktop\futbolcu_analiz\Futbolcu_Analizi\cikti_20260513_160615\grafikler\01_egitim_val_kayip_egrisi.png
+2026-05-13 16:06:42 | INFO | Latent temsiller çıkarılıyor...
+2026-05-13 16:06:42 | INFO | Latent boyutu: (1832, 8)
+2026-05-13 16:06:42 | INFO | Optimal cluster sayısı aranıyor (k=2..10)...
+2026-05-13 16:06:49 | INFO |   k= 2 | Silhouette: 0.4733 | Davies-Bouldin: 0.9832 | Calinski-Harabasz: 1085.52
+2026-05-13 16:06:49 | INFO |   k= 3 | Silhouette: 0.2893 | Davies-Bouldin: 1.2402 | Calinski-Harabasz: 934.95
+2026-05-13 16:06:49 | INFO |   k= 4 | Silhouette: 0.2712 | Davies-Bouldin: 1.1121 | Calinski-Harabasz: 870.23
+2026-05-13 16:06:49 | INFO |   k= 5 | Silhouette: 0.2639 | Davies-Bouldin: 1.1210 | Calinski-Harabasz: 823.91
+2026-05-13 16:06:50 | INFO |   k= 6 | Silhouette: 0.2732 | Davies-Bouldin: 1.1246 | Calinski-Harabasz: 816.40
+2026-05-13 16:06:50 | INFO |   k= 7 | Silhouette: 0.2602 | Davies-Bouldin: 1.1417 | Calinski-Harabasz: 790.70
+2026-05-13 16:06:50 | INFO |   k= 8 | Silhouette: 0.2711 | Davies-Bouldin: 1.0601 | Calinski-Harabasz: 783.99
+2026-05-13 16:06:50 | INFO |   k= 9 | Silhouette: 0.2642 | Davies-Bouldin: 1.0651 | Calinski-Harabasz: 773.63
+2026-05-13 16:06:50 | INFO |   k=10 | Silhouette: 0.2701 | Davies-Bouldin: 1.0665 | Calinski-Harabasz: 766.44
+2026-05-13 16:06:50 | INFO | En iyi k (Silhouette bazlı): 2
+2026-05-13 16:06:51 | INFO | Grafik kaydedildi → c:\Users\berks\Desktop\futbolcu_analiz\Futbolcu_Analizi\cikti_20260513_160615\grafikler\02_kume_secim_metrikleri.png
+2026-05-13 16:06:51 | INFO | Final KMeans uygulanıyor (k=2)...
+2026-05-13 16:06:51 | INFO |   Cluster 0: 289 oyuncu
+2026-05-13 16:06:51 | INFO |   Cluster 1: 1543 oyuncu
+2026-05-13 16:06:51 | INFO | t-SNE görselleştirmesi hazırlanıyor...
+2026-05-13 16:06:58 | INFO | t-SNE tamamlandı.
+2026-05-13 16:06:58 | INFO | Grafik kaydedildi → c:\Users\berks\Desktop\futbolcu_analiz\Futbolcu_Analizi\cikti_20260513_160615\grafikler\03_tsne_kumeler.png
+2026-05-13 16:06:58 | INFO | Cluster radar grafikleri çiziliyor...
+2026-05-13 16:06:59 | INFO | Grafik kaydedildi → c:\Users\berks\Desktop\futbolcu_analiz\Futbolcu_Analizi\cikti_20260513_160615\grafikler\04_cluster_radar.png
+2026-05-13 16:06:59 | INFO | Grafik kaydedildi → c:\Users\berks\Desktop\futbolcu_analiz\Futbolcu_Analizi\cikti_20260513_160615\grafikler\05_feature_dagilim.png
+2026-05-13 16:06:59 | INFO | Cluster bazlı kutu grafikleri çiziliyor...
+2026-05-13 16:06:59 | INFO | Grafik kaydedildi → c:\Users\berks\Desktop\futbolcu_analiz\Futbolcu_Analizi\cikti_20260513_160615\grafikler\06_kutu_Hücum.png
+2026-05-13 16:07:00 | INFO | Grafik kaydedildi → c:\Users\berks\Desktop\futbolcu_analiz\Futbolcu_Analizi\cikti_20260513_160615\grafikler\06_kutu_Pas_ve_Oyun_Kurma.png
+2026-05-13 16:07:00 | INFO | Grafik kaydedildi → c:\Users\berks\Desktop\futbolcu_analiz\Futbolcu_Analizi\cikti_20260513_160615\grafikler\06_kutu_Defans.png
+2026-05-13 16:07:00 | INFO | Grafik kaydedildi → c:\Users\berks\Desktop\futbolcu_analiz\Futbolcu_Analizi\cikti_20260513_160615\grafikler\06_kutu_Top_Taşıma.png
+2026-05-13 16:07:00 | INFO | Reconstruction error dağılımı hesaplanıyor...
+2026-05-13 16:07:00 | INFO | Final Reconstruction MSE (tüm veri): 0.113243
+2026-05-13 16:07:01 | INFO | Grafik kaydedildi → c:\Users\berks\Desktop\futbolcu_analiz\Futbolcu_Analizi\cikti_20260513_160615\grafikler\07_rekonstruksiyon_hata.png
+2026-05-13 16:07:01 | INFO | Grafik kaydedildi → c:\Users\berks\Desktop\futbolcu_analiz\Futbolcu_Analizi\cikti_20260513_160615\grafikler\08_latent_korelasyon.png
+2026-05-13 16:07:01 | INFO | Benzerlik matrisi oluşturuluyor...
+2026-05-13 16:07:01 | INFO | latent_features.csv → c:\Users\berks\Desktop\futbolcu_analiz\Futbolcu_Analizi\cikti_20260513_160615
+2026-05-13 16:07:01 | INFO | tsne_koordinatlari.csv → c:\Users\berks\Desktop\futbolcu_analiz\Futbolcu_Analizi\cikti_20260513_160615
+2026-05-13 16:07:01 | INFO | cluster_feature_ortalamalar.csv → c:\Users\berks\Desktop\futbolcu_analiz\Futbolcu_Analizi\cikti_20260513_160615
+2026-05-13 16:07:01 | INFO | Model → c:\Users\berks\Desktop\futbolcu_analiz\Futbolcu_Analizi\cikti_20260513_160615\modeller
+2026-05-13 16:07:01 | INFO | Eğitim geçmişi JSON → c:\Users\berks\Desktop\futbolcu_analiz\Futbolcu_Analizi\cikti_20260513_160615\loglar
+2026-05-13 16:07:01 | INFO | 
+2026-05-13 16:07:01 | INFO | =================================================================
+2026-05-13 16:07:01 | INFO | CLUSTER BAZLI OYUNCU LİSTESİ
+2026-05-13 16:07:01 | INFO | =================================================================
+2026-05-13 16:07:01 | INFO | 
+── CLUSTER 0 (ilk 10 oyuncu) ──
+2026-05-13 16:07:01 | INFO |    Max Aarons
+2026-05-13 16:07:01 | INFO |    Yunis Abdelhamid
+2026-05-13 16:07:01 | INFO |    Mohamed Abdelmoneim
+2026-05-13 16:07:01 | INFO |    Oliver Abildgaard
+2026-05-13 16:07:01 | INFO |    Abdel Abqar
+2026-05-13 16:07:01 | INFO |    Amine Adli
+2026-05-13 16:07:01 | INFO |    Adrián
+2026-05-13 16:07:01 | INFO |    Emmanuel Agbadou
+2026-05-13 16:07:01 | INFO |    Naouirou Ahamada
+2026-05-13 16:07:01 | INFO |    Honest Ahanor
+2026-05-13 16:07:01 | INFO | 
+── CLUSTER 1 (ilk 10 oyuncu) ──
+2026-05-13 16:07:01 | INFO |    Max Aarons
+2026-05-13 16:07:01 | INFO |    Rodrigo Abajas
+2026-05-13 16:07:01 | INFO |    James Abankwah
+2026-05-13 16:07:01 | INFO |    Keyliane Abdallah
+2026-05-13 16:07:01 | INFO |    Himad Abdelli
+2026-05-13 16:07:01 | INFO |    Ali Abdi
+2026-05-13 16:07:01 | INFO |    Saud Abdulhamid
+2026-05-13 16:07:01 | INFO |    Abel
+2026-05-13 16:07:01 | INFO |    Nabil Aberdin
+2026-05-13 16:07:01 | INFO |    Matthis Abline
+2026-05-13 16:07:01 | INFO | 
+2026-05-13 16:07:01 | INFO | =================================================================
+2026-05-13 16:07:01 | INFO | ÖRNEK ÖNERİ SORGUSU
+2026-05-13 16:07:01 | INFO | =================================================================
+2026-05-13 16:07:01 | INFO | =======================================================
+2026-05-13 16:07:01 | INFO | Max Aarons için en benzer 5 oyuncu (Cluster 1)
+2026-05-13 16:07:01 | INFO | =======================================================
+2026-05-13 16:07:01 | INFO |   1. Mason Greenwood                | Benzerlik: 0.9993 | Cluster: 1
+2026-05-13 16:07:01 | INFO |   2. Kilian Fischer                 | Benzerlik: 0.9993 | Cluster: 1
+2026-05-13 16:07:01 | INFO |   3. Yoel Lago                      | Benzerlik: 0.9991 | Cluster: 1
+2026-05-13 16:07:01 | INFO |   4. Felix Agu                      | Benzerlik: 0.9991 | Cluster: 1
+2026-05-13 16:07:01 | INFO |   5. Hamed Junior Traorè            | Benzerlik: 0.9990 | Cluster: 1
+2026-05-13 16:07:01 | INFO | 
+2026-05-13 16:07:01 | INFO | =================================================================
+2026-05-13 16:07:01 | INFO | SİSTEM BAŞARIYLA TAMAMLANDI
+2026-05-13 16:07:01 | INFO | Tüm çıktılar: C:\Users\berks\Desktop\futbolcu_analiz\Futbolcu_Analizi\cikti_20260513_160615
+2026-05-13 16:07:01 | INFO |   ├── loglar/  → sistem_logu.txt, egitim_gecmisi.json
+2026-05-13 16:07:01 | INFO |   ├── grafikler/ → 8 adet PNG grafiği
+2026-05-13 16:07:01 | INFO |   ├── modeller/ → best_autoencoder.pth, final.pth
+2026-05-13 16:07:01 | INFO |   ├── latent_features.csv
+2026-05-13 16:07:01 | INFO |   ├── tsne_koordinatlari.csv
+2026-05-13 16:07:01 | INFO |   └── cluster_feature_ortalamalar.csv
+2026-05-13 16:07:01 | INFO | =================================================================
