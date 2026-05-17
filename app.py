@@ -26,7 +26,16 @@ st.markdown("""
         background-color: #1e2530; padding: 20px; border-radius: 10px;
         box-shadow: 0 4px 6px rgba(0,0,0,0.3); text-align: center;
         border-left: 5px solid #00d2ff; margin-bottom: 20px;
+        color: white;
     }
+    .metric-card h3 {
+        color: white;
+    }
+    /* Deploy butonunu ve üst menüyü gizleme */
+    #MainMenu {visibility: hidden;}
+    header {visibility: hidden;}
+    footer {visibility: hidden;}
+    .stDeployButton {display:none;}
 </style>
 """, unsafe_allow_html=True)
 
@@ -142,17 +151,22 @@ def load_system():
     v2_latent_df = pd.read_csv(V2_DIR / "latent_features.csv")
     
     # 5. UMAP Koordinatlarını Yükle
+    v1_coords_df = pd.read_csv(V1_DIR / "tsne_umap_koordinatlari.csv")
     v2_coords_df = pd.read_csv(V2_DIR / "tsne_umap_koordinatlari.csv")
     
     # Latent matrisleri numpy'a çevir
     v1_matrix = v1_latent_df[[c for c in v1_latent_df.columns if c.startswith('L')]].values
     v2_matrix = v2_latent_df[[c for c in v2_latent_df.columns if c.startswith('mu_')]].values
 
-    return df, players, scaler, model_v1, model_v2, v1_latent_df, v2_latent_df, v1_matrix, v2_matrix, v2_coords_df
+    return df, players, scaler, model_v1, model_v2, v1_latent_df, v2_latent_df, v1_matrix, v2_matrix, v1_coords_df, v2_coords_df
+
+@st.cache_resource
+def get_system():
+    return load_system()
 
 with st.spinner("Modeller ve yapay zeka ağı yükleniyor..."):
     try:
-        df_raw, players, scaler, model_v1, model_v2, v1_latent_df, v2_latent_df, v1_matrix, v2_matrix, v2_coords_df = load_system()
+        df_raw, players, scaler, model_v1, model_v2, v1_latent_df, v2_latent_df, v1_matrix, v2_matrix, v1_coords_df, v2_coords_df = get_system()
         st.toast('Sistem Başarıyla Yüklendi!', icon='✅')
     except Exception as e:
         st.error(f"Sistem yüklenirken hata oluştu: {e}")
@@ -170,6 +184,18 @@ CLUSTER_NAMES = {
     5: "Fırsatçı / Pivot Forvetler",
     6: "Saf Bitiriciler (Pure Goalscorers)",
     7: "Yok Ediciler & Dinamolar"
+}
+
+CLUSTER_COLORS = {
+    0: "#E41A1C", # Kırmızı
+    1: "#377EB8", # Mavi
+    2: "#4DAF4A", # Yeşil
+    3: "#984EA3", # Mor
+    4: "#FF7F00", # Turuncu
+    5: "#F781BF", # Pembe (Sarı beyaz temada parlayabilir diye pembeyle değiştirdik)
+    6: "#A65628", # Kahverengi
+    7: "#17BECF", # Turkuaz
+    8: "#999999", 9: "#66C2A5", 10: "#FC8D62", 11: "#8DA0CB"
 }
 
 def predict_and_find_similar(stats_array, model, latent_matrix, latent_df, version="v1"):
@@ -207,6 +233,76 @@ def predict_and_find_similar(stats_array, model, latent_matrix, latent_df, versi
         
     return predicted_cluster, pd.DataFrame(results), latent_vec[0]
 
+def plot_umap(coords_df, sim_df, selected_player, title, cluster_names_dict=None):
+    plot_df = coords_df.copy()
+    
+    color_map = {}
+    if cluster_names_dict:
+        plot_df['Oyun Stili'] = plot_df['Cluster'].apply(lambda c: f"{int(c)} - {cluster_names_dict.get(int(c), 'Bilinmeyen')}")
+        for c_id in plot_df['Cluster'].unique():
+            name = f"{int(c_id)} - {cluster_names_dict.get(int(c_id), 'Bilinmeyen')}"
+            color_map[name] = CLUSTER_COLORS.get(int(c_id), "#ffffff")
+    else:
+        plot_df['Oyun Stili'] = plot_df['Cluster'].apply(lambda c: f"Küme {int(c)}")
+        for c_id in plot_df['Cluster'].unique():
+            name = f"Küme {int(c_id)}"
+            color_map[name] = CLUSTER_COLORS.get(int(c_id), "#ffffff")
+            
+    similar_players = sim_df["Oyuncu"].tolist()
+    
+    fig_umap = px.scatter(
+        plot_df, x="UMAP_1", y="UMAP_2", color="Oyun Stili", hover_name="Player",
+        color_discrete_map=color_map,
+        title=title,
+        opacity=0.6,
+    )
+    
+    similar_df = plot_df[plot_df['Player'].isin(similar_players)]
+    
+    fig_umap.add_trace(go.Scatter(
+        x=similar_df['UMAP_1'], y=similar_df['UMAP_2'],
+        mode='markers+text',
+        marker=dict(symbol='star', size=15, color='yellow', line=dict(width=2, color='black')),
+        text=similar_df['Player'],
+        textposition="top center",
+        name="Benzer Oyuncular",
+        hoverinfo="text"
+    ))
+    
+    target_umap_x, target_umap_y = None, None
+    target_name = "Sizin Oyuncunuz"
+    
+    if selected_player != "-- Manuel Giriş --":
+        target_name = selected_player
+        row = plot_df[plot_df['Player'] == selected_player]
+        if not row.empty:
+            target_umap_x = row.iloc[0]['UMAP_1']
+            target_umap_y = row.iloc[0]['UMAP_2']
+            
+    if target_umap_x is None or target_umap_y is None:
+        target_umap_x = similar_df['UMAP_1'].mean()
+        target_umap_y = similar_df['UMAP_2'].mean()
+        target_name = "Hedef Oyuncu (Tahmini)"
+        
+    fig_umap.add_trace(go.Scatter(
+        x=[target_umap_x], y=[target_umap_y],
+        mode='markers+text',
+        marker=dict(symbol='x', size=20, color='white', line=dict(width=4, color='red')),
+        text=[f"<b>{target_name}</b>"],
+        textposition="bottom center",
+        name="Sizin Oyuncunuz",
+        hoverinfo="text"
+    ))
+    
+    fig_umap.update_layout(
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        font_color="white",
+        height=600,
+        legend=dict(orientation="h", yanchor="bottom", y=-0.3, xanchor="center", x=0.5)
+    )
+    return fig_umap
+
 # Özelliklerin Türkçe ve anlaşılır isimleri
 FEATURE_LABELS = {
     'Gls': 'Gol',
@@ -234,7 +330,6 @@ FEATURE_LABELS = {
 # ---------------------------------------------------------
 # 5. ARAYÜZ - SIDEBAR (GİRDİLER)
 # ---------------------------------------------------------
-st.sidebar.image("https://cdn-icons-png.flaticon.com/512/1070/1070443.png", width=100)
 st.sidebar.title("Oyuncu Parametreleri")
 
 st.sidebar.markdown("Mevcut bir oyuncuyu seçerek özelliklerini kopyalayabilir veya kendiniz sıfırdan değer girebilirsiniz.")
@@ -254,138 +349,164 @@ for feat in FEATURES:
 # ---------------------------------------------------------
 # 6. ARAYÜZ - ANA EKRAN
 # ---------------------------------------------------------
-st.title("⚡ Yapay Zeka Destekli Futbolcu Stili Analizi")
-st.markdown("Girilen istatistiklere göre oyuncunun hangi stile ait olduğunu **Model V1 (Autoencoder)** ve **Model V2 (Variational Autoencoder)** kullanarak analiz edin.")
+st.title("Futbolcu Oyun Stili Analizi")
+st.markdown("Seçilen istatistiklere göre oyuncunun hangi stile ait olduğunu Temel Model (V1) ve Gelişmiş Model (V2) aracılığıyla inceleyebilirsiniz.")
 
-if st.sidebar.button("🧠 Oyuncuyu Analiz Et", use_container_width=True):
-    stats_array = np.array([input_data[f] for f in FEATURES])
-    
-    col1, col2 = st.columns(2)
-    
-    # MODEL V1 ANALİZİ
-    c1, sim_v1, _ = predict_and_find_similar(stats_array, model_v1, v1_matrix, v1_latent_df, "v1")
-    with col1:
-        st.markdown(f"""
-        <div class="metric-card">
-            <h3>🤖 Model V1 (Autoencoder)</h3>
-            <p style="color:#aaa;">Tahmini Küme</p>
-            <h1 style="font-size: 50px; margin:0; color:#00d2ff;">Cluster {c1}</h1>
-        </div>
-        """, unsafe_allow_html=True)
-        st.markdown("#### 🔍 V1 Uzayındaki En Benzer Oyuncular")
-        st.dataframe(sim_v1, use_container_width=True, hide_index=True)
+tab1, tab2 = st.tabs(["Tekli Oyuncu Analizi", "Oyuncu Karşılaştırma"])
+
+with tab1:
+    if st.sidebar.button("Oyuncuyu Analiz Et", use_container_width=True):
+        stats_array = np.array([input_data[f] for f in FEATURES])
         
-    # MODEL V2 ANALİZİ
-    c2, sim_v2, _ = predict_and_find_similar(stats_array, model_v2, v2_matrix, v2_latent_df, "v2")
-    c2_name = CLUSTER_NAMES.get(c2, f"Küme {c2}")
-    
-    with col2:
-        st.markdown(f"""
-        <div class="metric-card" style="border-left-color: #ff007f;">
-            <h3>🧠 Model V2 (VAE + GMM)</h3>
-            <p style="color:#aaa;">Tahmini Oyun Stili</p>
-            <h1 style="font-size: 32px; margin:0; color:#ff007f;">{c2_name}</h1>
-            <p style="color:#ff007f; margin-top:5px; font-weight:bold;">(Cluster {c2})</p>
-        </div>
-        """, unsafe_allow_html=True)
-        st.markdown("#### 🎯 V2 Uzayındaki En Benzer Oyuncular")
-        st.dataframe(sim_v2, use_container_width=True, hide_index=True)
+        col1, col2 = st.columns(2)
         
-    st.divider()
-    
-    # RADAR GRAFİĞİ (GİRDİLERİ GÖRSELLEŞTİR)
-    st.markdown("### 📊 Oyuncu Profil Radarı (Girilen Değerler)")
-    
-    # Girdileri 0-1 arasına normalize et (Görsellik için, max değere bölerek)
-    max_vals = df_raw[FEATURES].max()
-    norm_inputs = stats_array / max_vals.values
-    
-    fig = go.Figure(data=go.Scatterpolar(
-      r=norm_inputs,
-      theta=FEATURES,
-      fill='toself',
-      line_color='#00d2ff',
-      fillcolor='rgba(0, 210, 255, 0.4)'
-    ))
-    fig.update_layout(
-      polar=dict(radialaxis=dict(visible=False, range=[0, 1])),
-      showlegend=False,
-      paper_bgcolor='rgba(0,0,0,0)',
-      plot_bgcolor='rgba(0,0,0,0)',
-      font_color="white",
-      height=500
-    )
-    st.plotly_chart(fig, use_container_width=True)
-    
-    st.divider()
-    
-    # KÜMELEME HARİTASI (UMAP) ÜZERİNDE GÖSTERİM
-    st.markdown("### 🗺️ Oyuncunun V2 Kümeleme Haritasındaki Yeri (UMAP)")
-    st.markdown("Aşağıdaki haritada, girdiğiniz özelliklere **en çok benzeyen 5 oyuncunun** (⭐) konumunu ve **kendi oyuncunuzun** (❌) konumunu görüyorsunuz.")
-    
-    # V2 Koordinat verisini hazırla
-    plot_df = v2_coords_df.copy()
-    plot_df['Oyun Stili'] = plot_df['Cluster'].apply(lambda c: f"{int(c)} - {CLUSTER_NAMES.get(int(c), 'Bilinmeyen')}")
-    
-    # Benzer oyuncuların isimlerini al
-    similar_players = sim_v2["Oyuncu"].tolist()
-    
-    # Scatter plot oluştur
-    fig_umap = px.scatter(
-        plot_df, x="UMAP_1", y="UMAP_2", color="Oyun Stili", hover_name="Player",
-        color_discrete_sequence=px.colors.qualitative.Set1,
-        title="V2 UMAP Gizli Uzayı",
-        opacity=0.6,
-    )
-    
-    # Benzer oyuncuları yıldızla işaretle
-    similar_df = plot_df[plot_df['Player'].isin(similar_players)]
-    
-    fig_umap.add_trace(go.Scatter(
-        x=similar_df['UMAP_1'], y=similar_df['UMAP_2'],
-        mode='markers+text',
-        marker=dict(symbol='star', size=15, color='yellow', line=dict(width=2, color='black')),
-        text=similar_df['Player'],
-        textposition="top center",
-        name="Benzer Oyuncular",
-        hoverinfo="text"
-    ))
-    
-    # Kendi oyuncumuzun konumunu bul
-    target_umap_x, target_umap_y = None, None
-    target_name = "Sizin Oyuncunuz"
-    
-    if selected_player != "-- Manuel Giriş --":
-        target_name = selected_player
-        row = plot_df[plot_df['Player'] == selected_player]
-        if not row.empty:
-            target_umap_x = row.iloc[0]['UMAP_1']
-            target_umap_y = row.iloc[0]['UMAP_2']
+        # MODEL V1 ANALİZİ
+        c1, sim_v1, _ = predict_and_find_similar(stats_array, model_v1, v1_matrix, v1_latent_df, "v1")
+        c1_color = CLUSTER_COLORS.get(c1, "#3a7bd5")
+        
+        with col1:
+            st.markdown(f"""
+            <div class="metric-card" style="border-left-color: {c1_color};">
+                <h3>Model V1 (Autoencoder)</h3>
+                <p style="color:#aaa;">Tahmini Küme</p>
+                <h1 style="font-size: 32px; margin:0; color:{c1_color};">Küme {c1}</h1>
+            </div>
+            """, unsafe_allow_html=True)
+            st.markdown("#### V1 Uzayındaki Benzer Oyuncular")
+            st.dataframe(sim_v1, use_container_width=True, hide_index=True)
             
-    # Eğer manuel girişse, benzer 5 oyuncunun ortalama konumunu (yaklaşık) al
-    if target_umap_x is None or target_umap_y is None:
-        target_umap_x = similar_df['UMAP_1'].mean()
-        target_umap_y = similar_df['UMAP_2'].mean()
-        target_name = "Hedef Oyuncu (Tahmini Konum)"
+        # MODEL V2 ANALİZİ
+        c2, sim_v2, _ = predict_and_find_similar(stats_array, model_v2, v2_matrix, v2_latent_df, "v2")
+        c2_name = CLUSTER_NAMES.get(c2, f"Küme {c2}")
+        c2_color = CLUSTER_COLORS.get(c2, "#00d2ff")
         
-    # Kendi oyuncumuzu haritaya dev bir kırmızı çarpı ile ekle
-    fig_umap.add_trace(go.Scatter(
-        x=[target_umap_x], y=[target_umap_y],
-        mode='markers+text',
-        marker=dict(symbol='x', size=20, color='white', line=dict(width=4, color='red')),
-        text=[f"<b>{target_name}</b>"],
-        textposition="bottom center",
-        name="Sizin Oyuncunuz",
-        hoverinfo="text"
-    ))
+        with col2:
+            st.markdown(f"""
+            <div class="metric-card" style="border-left-color: {c2_color};">
+                <h3>Model V2 (VAE + GMM)</h3>
+                <p style="color:#aaa;">Tespit Edilen Oyun Stili</p>
+                <h1 style="font-size: 28px; margin:0; color:{c2_color};">{c2_name}</h1>
+                <p style="color:{c2_color}; margin-top:5px; font-weight:bold;">(Küme {c2})</p>
+            </div>
+            """, unsafe_allow_html=True)
+            st.markdown("#### V2 Uzayındaki Benzer Oyuncular")
+            st.dataframe(sim_v2, use_container_width=True, hide_index=True)
+            
+        st.divider()
+        
+        # RADAR GRAFİĞİ (GİRDİLERİ GÖRSELLEŞTİR)
+        st.markdown("### 📊 Oyuncu Profil Radarı (Girilen Değerler)")
+        
+        # Girdileri 0-1 arasına normalize et (Görsellik için, max değere bölerek)
+        max_vals = df_raw[FEATURES].max()
+        norm_inputs = stats_array / max_vals.values
+        
+        fig = go.Figure(data=go.Scatterpolar(
+          r=norm_inputs,
+          theta=FEATURES,
+          fill='toself',
+          line_color='#00d2ff',
+          fillcolor='rgba(0, 210, 255, 0.4)'
+        ))
+        fig.update_layout(
+          polar=dict(radialaxis=dict(visible=False, range=[0, 1])),
+          showlegend=False,
+          paper_bgcolor='rgba(0,0,0,0)',
+          plot_bgcolor='rgba(0,0,0,0)',
+          font_color="white",
+          height=500
+        )
+        st.plotly_chart(fig, use_container_width=True)
+        
+        st.divider()
+        
+        # ---------------------------------------------------------
+        # KÜMELEME HARİTASI (UMAP) ÜZERİNDE GÖSTERİM
+        # ---------------------------------------------------------
+        st.markdown("### Oyuncunun Kümeleme Haritalarındaki Konumu (UMAP)")
+        st.markdown("Aşağıdaki haritalarda, hedeflenen oyuncunun konumunu (Çarpı) ve en çok benzeyen 5 oyuncuyu (Yıldız) görebilirsiniz.")
+        
+        fig_umap_v1 = plot_umap(v1_coords_df, sim_v1, selected_player, "Temel UMAP Gizli Uzayı (V1)")
+        st.plotly_chart(fig_umap_v1, use_container_width=True)
+        
+        st.markdown("<br><br>", unsafe_allow_html=True)
+        
+        fig_umap_v2 = plot_umap(v2_coords_df, sim_v2, selected_player, "Gelişmiş UMAP Gizli Uzayı (V2)", CLUSTER_NAMES)
+        st.plotly_chart(fig_umap_v2, use_container_width=True)
     
-    fig_umap.update_layout(
-        plot_bgcolor='rgba(0,0,0,0)',
-        paper_bgcolor='rgba(0,0,0,0)',
-        font_color="white",
-        height=600
-    )
-    st.plotly_chart(fig_umap, use_container_width=True)
+    else:
+        st.info("Analizi başlatmak için sol panelden istatistikleri belirleyip 'Oyuncuyu Analiz Et' butonuna tıklayın.")
 
-else:
-    st.info("👈 Analizi başlatmak için sol panelden istatistikleri belirleyip 'Oyuncuyu Analiz Et' butonuna tıklayın.")
+with tab2:
+    st.markdown("### ⚖️ Oyuncu Karşılaştırma")
+    st.markdown("Veri setindeki iki oyuncuyu seçerek yapay zeka uzayındaki benzerliklerini ve istatistiklerini kıyaslayın.")
+    
+    col_a, col_b = st.columns(2)
+    with col_a:
+        player_a = st.selectbox("1. Oyuncu", players['Player'].tolist(), index=0)
+    with col_b:
+        player_b = st.selectbox("2. Oyuncu", players['Player'].tolist(), index=1)
+        
+    if st.button("Oyuncuları Karşılaştır", type="primary", use_container_width=True):
+        idx_a = players[players['Player'] == player_a].index[0]
+        idx_b = players[players['Player'] == player_b].index[0]
+        
+        stats_a = np.array([df_raw.iloc[idx_a][f] for f in FEATURES])
+        stats_b = np.array([df_raw.iloc[idx_b][f] for f in FEATURES])
+        
+        c1_a, _, _ = predict_and_find_similar(stats_a, model_v1, v1_matrix, v1_latent_df, "v1")
+        c2_a, _, latent_a = predict_and_find_similar(stats_a, model_v2, v2_matrix, v2_latent_df, "v2")
+        
+        c1_b, _, _ = predict_and_find_similar(stats_b, model_v1, v1_matrix, v1_latent_df, "v1")
+        c2_b, _, latent_b = predict_and_find_similar(stats_b, model_v2, v2_matrix, v2_latent_df, "v2")
+        
+        # Benzerlik Skoru (Cosine Similarity on V2 latent space)
+        # latent_a ve latent_b 16 boyutlu numpy dizileri. (1, 16) shape'ine getir.
+        sim_score = cosine_similarity(latent_a.reshape(1, -1), latent_b.reshape(1, -1))[0][0]
+        # Kosinüs benzerliği -1 ile 1 arasındadır. Direkt 0'da kesmek yerine 0-100 aralığına yayıyoruz.
+        sim_percent = int(((sim_score + 1) / 2) * 100)
+        
+        st.markdown(f"""
+        <div class="metric-card" style="border-left-color: #4DAF4A; margin-top:20px;">
+            <h3>Yapay Zeka (V2) Benzerlik Skoru</h3>
+            <p style="color:#aaa;">İki oyuncunun 16 boyutlu zeka uzayındaki oyun stili benzerliği</p>
+            <h1 style="font-size: 40px; margin:0; color:#4DAF4A;">%{sim_percent}</h1>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        c_col1, c_col2 = st.columns(2)
+        with c_col1:
+            st.markdown(f"#### 🟦 {player_a}")
+            st.write(f"**V1 Kümesi:** Küme {c1_a}")
+            st.write(f"**V2 Stili:** {CLUSTER_NAMES.get(c2_a, f'Küme {c2_a}')}")
+        with c_col2:
+            st.markdown(f"#### 🟥 {player_b}")
+            st.write(f"**V1 Kümesi:** Küme {c1_b}")
+            st.write(f"**V2 Stili:** {CLUSTER_NAMES.get(c2_b, f'Küme {c2_b}')}")
+            
+        st.divider()
+        
+        # Çoklu Radar Grafiği
+        max_vals = df_raw[FEATURES].max()
+        norm_a = stats_a / max_vals.values
+        norm_b = stats_b / max_vals.values
+        
+        fig_comp = go.Figure()
+        fig_comp.add_trace(go.Scatterpolar(
+            r=norm_a, theta=FEATURES, fill='toself', name=player_a,
+            line_color='#00d2ff', fillcolor='rgba(0, 210, 255, 0.4)'
+        ))
+        fig_comp.add_trace(go.Scatterpolar(
+            r=norm_b, theta=FEATURES, fill='toself', name=player_b,
+            line_color='#ff007f', fillcolor='rgba(255, 0, 127, 0.4)'
+        ))
+        
+        fig_comp.update_layout(
+            polar=dict(radialaxis=dict(visible=False, range=[0, 1])),
+            showlegend=True,
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(0,0,0,0)',
+            font_color="white",
+            height=500
+        )
+        st.plotly_chart(fig_comp, use_container_width=True)
