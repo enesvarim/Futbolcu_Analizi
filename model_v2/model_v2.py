@@ -67,7 +67,8 @@ train_history = {
 log.info("Veriler yükleniyor...")
 df          = pd.read_csv(VERISETI_DIR / "temiz_veri.csv", encoding="utf-8")
 player_info = pd.read_csv(VERISETI_DIR / "futbolcular.csv", encoding="utf-8")
-player_info = player_info.iloc[:len(df)].reset_index(drop=True)
+player_info = player_info[~player_info['Pos'].str.contains('GK', na=False)]
+player_info = player_info[player_info['90s'] >= 5].reset_index(drop=True)
 PLAYER_COL  = "Player" if "Player" in player_info.columns else player_info.columns[0]
 log.info(f"temiz_veri.csv  → {df.shape[0]} satır, {df.shape[1]} sütun")
 log.info(f"futbolcular.csv → {player_info.shape[0]} oyuncu")

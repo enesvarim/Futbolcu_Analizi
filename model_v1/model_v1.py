@@ -38,9 +38,9 @@ import seaborn as sns
 from scipy.spatial.distance import cdist
 
 # ============================================================
-# 0. KLASÖR & LOGGING KURULUMU
-# ============================================================
-
+# 0.=================================
+ KLASÖR & LOGGING KURULUMU
+# ===========================
 VERISETI_DIR = Path(__file__).resolve().parents[1] / "veriseti"
 
 RUN_ID     = datetime.now().strftime("%Y%m%d_%H%M%S")
