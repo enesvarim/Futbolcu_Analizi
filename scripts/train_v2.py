@@ -13,6 +13,10 @@ import logging
 import sys
 from pathlib import Path
 
+# Windows terminali UTF-8'e zorla (μ, Türkçe karakterler için)
+if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
@@ -124,6 +128,7 @@ history["cluster_metrics"] = cluster_metrics
 
 log.info(f"Nihai GMM kümeleme uygulanıyor (k={best_k})...")
 clusters, gmm_probs, gmm_final = run_gmm_clustering(mu_vectors, gmm_models, best_k)
+players = players.copy()          # defragment — PerformanceWarning onlemi
 players["Cluster"] = clusters
 
 for cid, cnt in pd.Series(clusters).value_counts().sort_index().items():

@@ -10,11 +10,12 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 import torch
+from pathlib import Path
 
 from src.config import (
     FEATURES, FEATURE_LABELS, CLUSTER_NAMES, CLUSTER_NAMES_V1,
     V1_DIR, V2_DIR, V1_MODEL, V2_MODEL,
-    AE_LATENT_DIM, VAE_LATENT_DIM,
+    AE_LATENT_DIM, VAE_LATENT_DIM, VERI_DIR, EXCLUDE_POS, MIN_90S
 )
 from src.data.loader import load_raw_players, load_clean_features
 from src.data.preprocessor import clean_features, fit_scaler
@@ -64,12 +65,46 @@ def load_system():
     v1_matrix = v1_latent_df[[c for c in v1_latent_df.columns if c.startswith("L")]].values
     v2_matrix = v2_latent_df[[c for c in v2_latent_df.columns if c.startswith("mu_")]].values
 
+    # Süper Lig 3 Büyükler (2024-25) verisini yükle ve winsorize min-max ölçekle (0-1)
+    try:
+        superlig_path = VERI_DIR / "superlig_3buyukler_2024-25.csv"
+        if superlig_path.exists():
+            superlig_df = pd.read_csv(superlig_path, encoding="utf-8")
+            # Kalecileri filtrele
+            superlig_df = superlig_df[~superlig_df["Pos"].str.contains(EXCLUDE_POS, na=False)].reset_index(drop=True)
+
+            # Ham futbolcular veri setinin min-max sınırlarını bulalım (aynı filtreler ile)
+            raw_players = pd.read_csv(VERI_DIR / "futbolcular.csv", encoding="utf-8")
+            raw_players = raw_players[~raw_players["Pos"].str.contains(EXCLUDE_POS, na=False)]
+            raw_players = raw_players[raw_players["90s"] >= MIN_90S].reset_index(drop=True)
+
+            # Her bir özellik için winsorize ve min-max sınırlarını uygulayalım
+            for feat in FEATURES:
+                if feat in raw_players.columns:
+                    # Ham serinin winsorize sınırlarını (1% - 99%) çıkar
+                    feat_series = pd.to_numeric(raw_players[feat], errors='coerce').fillna(raw_players[feat].median())
+                    alt = feat_series.quantile(0.01)
+                    ust = feat_series.quantile(0.99)
+                    
+                    # Süper Lig oyuncu serisini temizle ve winsorize kırpması yap
+                    sl_series = pd.to_numeric(superlig_df[feat], errors='coerce').fillna(feat_series.median())
+                    sl_series = sl_series.clip(lower=alt, upper=ust)
+                    
+                    # Min-Max Ölçekleme (0 ile 1 arasına çekme)
+                    payda = ust - alt if ust != alt else 1.0
+                    superlig_df[feat] = (sl_series - alt) / payda
+        else:
+            superlig_df = pd.DataFrame()
+    except Exception:
+        superlig_df = pd.DataFrame()
+
     return (
         players, X_clean, scaler,
         model_v1, model_v2,
         v1_latent_df, v2_latent_df,
         v1_matrix, v2_matrix,
         v1_coords_df, v2_coords_df,
+        superlig_df,
     )
 
 
@@ -81,6 +116,7 @@ with st.spinner("Modeller ve yapay zeka ağı yükleniyor..."):
             v1_latent_df, v2_latent_df,
             v1_matrix, v2_matrix,
             v1_coords_df, v2_coords_df,
+            superlig_df,
         ) = load_system()
         st.toast("Sistem Başarıyla Yüklendi!", icon="✅")
     except Exception as e:
@@ -96,14 +132,26 @@ st.sidebar.markdown(
     "veya kendiniz sıfırdan değer girebilirsiniz."
 )
 
+# Süper Lig oyuncularının isim listesi
+superlig_names = superlig_df["Player"].tolist() if not superlig_df.empty else []
+original_names = players["Player"].tolist()
+
+# Seçenekleri birleştirelim
 selected_player = st.sidebar.selectbox(
     "Hazır Şablon (Opsiyonel)",
-    ["-- Manuel Giriş --"] + players["Player"].tolist(),
+    ["-- Manuel Giriş --"] + [f"⭐ {name}" for name in superlig_names] + original_names,
 )
 
 if selected_player != "-- Manuel Giriş --":
-    idx          = players[players["Player"] == selected_player].index[0]
-    default_vals = df_raw.iloc[idx]
+    if selected_player.startswith("⭐ "):
+        # Süper Lig oyuncusu
+        real_name = selected_player[2:]
+        idx = superlig_df[superlig_df["Player"] == real_name].index[0]
+        default_vals = superlig_df.iloc[idx]
+    else:
+        # Normal oyuncu
+        idx          = players[players["Player"] == selected_player].index[0]
+        default_vals = df_raw.iloc[idx]
 else:
     default_vals = df_raw.mean()
 
@@ -167,13 +215,16 @@ with tab1:
         st.markdown(
             "Haritada hedef oyuncu **✕** ile, en çok benzeyen 5 oyuncu **⭐** ile gösterilir."
         )
+        
+        display_target_name = selected_player.replace("⭐ ", "")
+        
         st.plotly_chart(
-            plot_umap(v1_coords_df, sim_v1, selected_player, "Temel UMAP (V1)", CLUSTER_NAMES_V1),
+            plot_umap(v1_coords_df, sim_v1, display_target_name, "Temel UMAP (V1)", CLUSTER_NAMES_V1),
             use_container_width=True,
         )
         st.markdown("<br>", unsafe_allow_html=True)
         st.plotly_chart(
-            plot_umap(v2_coords_df, sim_v2, selected_player,
+            plot_umap(v2_coords_df, sim_v2, display_target_name,
                       "Gelişmiş UMAP (V2)", CLUSTER_NAMES),
             use_container_width=True,
         )
@@ -193,18 +244,33 @@ with tab2:
         "benzerliklerini ve istatistiklerini kıyaslayın."
     )
 
+    comparison_options = [f"⭐ {name}" for name in superlig_names] + original_names
+
     col_a, col_b = st.columns(2)
     with col_a:
-        player_a = st.selectbox("1. Oyuncu", players["Player"].tolist(), index=0)
+        player_a = st.selectbox("1. Oyuncu", comparison_options, index=0)
     with col_b:
-        player_b = st.selectbox("2. Oyuncu", players["Player"].tolist(), index=1)
+        player_b = st.selectbox(
+            "2. Oyuncu", 
+            comparison_options, 
+            index=1 if len(comparison_options) > 1 else 0
+        )
 
     if st.button("Oyuncuları Karşılaştır", type="primary", use_container_width=True):
-        idx_a = players[players["Player"] == player_a].index[0]
-        idx_b = players[players["Player"] == player_b].index[0]
+        def _get_player_stats(p_name):
+            if p_name.startswith("⭐ "):
+                real_name = p_name[2:]
+                idx = superlig_df[superlig_df["Player"] == real_name].index[0]
+                stats = np.array([superlig_df.iloc[idx][f] for f in FEATURES])
+                display_name = real_name
+            else:
+                idx = players[players["Player"] == p_name].index[0]
+                stats = np.array([df_raw.iloc[idx][f] for f in FEATURES])
+                display_name = p_name
+            return stats, display_name
 
-        stats_a = np.array([df_raw.iloc[idx_a][f] for f in FEATURES])
-        stats_b = np.array([df_raw.iloc[idx_b][f] for f in FEATURES])
+        stats_a, name_a = _get_player_stats(player_a)
+        stats_b, name_b = _get_player_stats(player_b)
 
         # V1 kümeleri
         c1_a, _, _ = predict_and_find_similar(
@@ -227,11 +293,11 @@ with tab2:
 
         c_col1, c_col2 = st.columns(2)
         with c_col1:
-            st.markdown(f"#### 🟦 {player_a}")
+            st.markdown(f"#### 🟦 {name_a}")
             st.write(f"**V1 Stili:** {CLUSTER_NAMES_V1.get(c1_a, f'Küme {c1_a}')}")
             st.write(f"**V2 Stili:** {CLUSTER_NAMES.get(c2_a, f'Küme {c2_a}')}")
         with c_col2:
-            st.markdown(f"#### 🟥 {player_b}")
+            st.markdown(f"#### 🟥 {name_b}")
             st.write(f"**V1 Stili:** {CLUSTER_NAMES_V1.get(c1_b, f'Küme {c1_b}')}")
             st.write(f"**V2 Stili:** {CLUSTER_NAMES.get(c2_b, f'Küme {c2_b}')}")
 
@@ -242,6 +308,6 @@ with tab2:
         norm_a   = normalize_for_radar(stats_a, max_vals)
         norm_b   = normalize_for_radar(stats_b, max_vals)
         st.plotly_chart(
-            plot_comparison_radar(norm_a, norm_b, player_a, player_b),
+            plot_comparison_radar(norm_a, norm_b, name_a, name_b),
             use_container_width=True,
         )

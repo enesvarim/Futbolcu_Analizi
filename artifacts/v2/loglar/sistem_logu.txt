@@ -1,0 +1,173 @@
+2026-05-26 00:31:49,125 | INFO | =================================================================
+2026-05-26 00:31:49,126 | INFO | FUTBOLCU ANALİZ — V2 (VAE + GMM) Eğitimi
+2026-05-26 00:31:49,128 | INFO | =================================================================
+2026-05-26 00:31:49,128 | INFO | Veri yükleniyor...
+2026-05-26 00:31:49,507 | INFO | Oyuncu: 1832 | Feature: 20
+2026-05-26 00:31:49,553 | INFO | Split → Train: 1282 | Val: 275 | Test: 275
+2026-05-26 00:31:49,554 | INFO | VAE oluşturuluyor (latent_dim=16)...
+2026-05-26 00:31:49,645 | INFO | Parametre sayısı: 97,972
+2026-05-26 00:31:49,646 | INFO | VAE eğitimi başlıyor (β-Annealing)...
+2026-05-26 00:31:54,342 | INFO | Epoch [  1/200] β=0.020 | Train: 0.31185 | Val: 0.28628 | Best: 0.28628 | Pat: 0/25 ✓ BEST
+2026-05-26 00:31:54,668 | INFO | Epoch [  2/200] β=0.040 | Train: 0.23658 | Val: 0.18020 | Best: 0.18020 | Pat: 0/25 ✓ BEST
+2026-05-26 00:31:55,073 | INFO | Epoch [  3/200] β=0.060 | Train: 0.20144 | Val: 0.13950 | Best: 0.13950 | Pat: 0/25 ✓ BEST
+2026-05-26 00:31:55,981 | INFO | Epoch [  6/200] β=0.120 | Train: 0.17946 | Val: 0.13583 | Best: 0.13583 | Pat: 0/25 ✓ BEST
+2026-05-26 00:31:56,564 | INFO | Epoch [  8/200] β=0.160 | Train: 0.18750 | Val: 0.13455 | Best: 0.13455 | Pat: 0/25 ✓ BEST
+2026-05-26 00:31:57,024 | INFO | Epoch [ 10/200] β=0.200 | Train: 0.18591 | Val: 0.14510 | Best: 0.13455 | Pat: 2/25 
+2026-05-26 00:31:59,394 | INFO | Epoch [ 20/200] β=0.400 | Train: 0.21027 | Val: 0.16126 | Best: 0.13455 | Pat: 12/25 
+2026-05-26 00:32:01,821 | INFO | Epoch [ 30/200] β=0.600 | Train: 0.23309 | Val: 0.17655 | Best: 0.13455 | Pat: 22/25 
+2026-05-26 00:32:02,600 | INFO | Early stopping — Epoch 33
+2026-05-26 00:32:02,628 | INFO | VAE eğitimi tamamlandı | Süre: 8.9s | Test Loss: 0.340900
+2026-05-26 00:32:02,629 | INFO | Latent μ vektörleri çıkarılıyor...
+2026-05-26 00:32:02,634 | INFO | Latent boyutu: (1832, 16)
+2026-05-26 00:32:02,640 | INFO | GMM ile optimal k aranıyor...
+2026-05-26 00:32:08,849 | INFO |   k= 5 | BIC: -45645.7 | Silhouette: 0.2851 | DB: 1.0609
+2026-05-26 00:32:10,307 | INFO |   k= 6 | BIC: -46467.0 | Silhouette: 0.2939 | DB: 1.0594
+2026-05-26 00:32:11,610 | INFO |   k= 7 | BIC: -47127.3 | Silhouette: 0.2966 | DB: 1.0024
+2026-05-26 00:32:13,434 | INFO |   k= 8 | BIC: -48077.5 | Silhouette: 0.2627 | DB: 1.0444
+2026-05-26 00:32:15,611 | INFO |   k= 9 | BIC: -48731.2 | Silhouette: 0.2665 | DB: 1.0191
+2026-05-26 00:32:18,433 | INFO |   k=10 | BIC: -48802.4 | Silhouette: 0.2517 | DB: 1.0999
+2026-05-26 00:32:18,434 | INFO | En iyi k (BIC+Sil+DB dengeli): 7
+2026-05-26 00:32:18,435 | INFO | Nihai GMM kümeleme uygulanıyor (k=7)...
+2026-05-26 00:32:18,453 | INFO |   Cluster 0: 240 oyuncu
+2026-05-26 00:32:18,453 | INFO |   Cluster 1: 259 oyuncu
+2026-05-26 00:32:18,454 | INFO |   Cluster 2: 235 oyuncu
+2026-05-26 00:32:18,454 | INFO |   Cluster 3: 397 oyuncu
+2026-05-26 00:32:18,455 | INFO |   Cluster 4: 100 oyuncu
+2026-05-26 00:32:18,456 | INFO |   Cluster 5: 367 oyuncu
+2026-05-26 00:32:18,456 | INFO |   Cluster 6: 234 oyuncu
+2026-05-26 00:32:18,457 | INFO | t-SNE hesaplanıyor...
+2026-05-26 00:32:34,488 | INFO | t-SNE tamamlandı.
+2026-05-26 00:32:34,489 | INFO | UMAP hesaplanıyor...
+2026-05-26 00:32:59,128 | INFO | UMAP tamamlandı.
+2026-05-26 00:35:14,788 | INFO | Çıktılar kaydediliyor...
+2026-05-26 00:35:15,415 | INFO | =================================================================
+2026-05-26 00:35:15,416 | INFO | V2 EĞİTİMİ TAMAMLANDI
+2026-05-26 00:35:15,417 | INFO | Çıktılar: C:\Users\enesv\OneDrive\Masaüstü\futbol stabil\artifacts\v2
+2026-05-26 00:35:15,418 | INFO | =================================================================
+2026-05-26 00:40:31,403 | INFO | =================================================================
+2026-05-26 00:40:31,404 | INFO | FUTBOLCU ANALİZ — V2 (VAE + GMM) Eğitimi
+2026-05-26 00:40:31,404 | INFO | =================================================================
+2026-05-26 00:40:31,404 | INFO | Veri yükleniyor...
+2026-05-26 00:40:31,721 | INFO | Oyuncu: 1832 | Feature: 20
+2026-05-26 00:40:31,751 | INFO | Split → Train: 1282 | Val: 275 | Test: 275
+2026-05-26 00:40:32,025 | INFO | VAE oluşturuluyor (latent_dim=16)...
+2026-05-26 00:40:32,097 | INFO | Parametre sayısı: 97,972
+2026-05-26 00:40:32,097 | INFO | VAE eğitimi başlıyor (β-Annealing)...
+2026-05-26 00:40:35,542 | INFO | Epoch [  1/300] β=0.006 | Train: 0.29644 | Val(Rekon): 0.29485 | Best: 0.29485 | Pat: 0/60 ✓ BEST
+2026-05-26 00:40:35,825 | INFO | Epoch [  2/300] β=0.013 | Train: 0.22848 | Val(Rekon): 0.17817 | Best: 0.17817 | Pat: 0/60 ✓ BEST
+2026-05-26 00:40:36,170 | INFO | Epoch [  3/300] β=0.019 | Train: 0.18634 | Val(Rekon): 0.17306 | Best: 0.17306 | Pat: 0/60 ✓ BEST
+2026-05-26 00:40:36,434 | INFO | Epoch [  4/300] β=0.025 | Train: 0.16920 | Val(Rekon): 0.11895 | Best: 0.11895 | Pat: 0/60 ✓ BEST
+2026-05-26 00:40:36,684 | INFO | Epoch [  5/300] β=0.031 | Train: 0.16086 | Val(Rekon): 0.09396 | Best: 0.09396 | Pat: 0/60 ✓ BEST
+2026-05-26 00:40:37,737 | INFO | Epoch [  9/300] β=0.056 | Train: 0.16084 | Val(Rekon): 0.08761 | Best: 0.08761 | Pat: 0/60 ✓ BEST
+2026-05-26 00:40:37,988 | INFO | Epoch [ 10/300] β=0.062 | Train: 0.14926 | Val(Rekon): 0.09219 | Best: 0.08761 | Pat: 0/60 
+2026-05-26 00:40:38,913 | INFO | Epoch [ 14/300] β=0.087 | Train: 0.15487 | Val(Rekon): 0.07714 | Best: 0.07714 | Pat: 0/60 ✓ BEST
+2026-05-26 00:40:39,411 | INFO | Epoch [ 16/300] β=0.100 | Train: 0.16170 | Val(Rekon): 0.07368 | Best: 0.07368 | Pat: 0/60 ✓ BEST
+2026-05-26 00:40:39,891 | INFO | Epoch [ 18/300] β=0.113 | Train: 0.15546 | Val(Rekon): 0.07065 | Best: 0.07065 | Pat: 0/60 ✓ BEST
+2026-05-26 00:40:40,395 | INFO | Epoch [ 20/300] β=0.125 | Train: 0.15682 | Val(Rekon): 0.07930 | Best: 0.07065 | Pat: 0/60 
+2026-05-26 00:40:43,146 | INFO | Epoch [ 30/300] β=0.188 | Train: 0.18009 | Val(Rekon): 0.07549 | Best: 0.07065 | Pat: 0/60 
+2026-05-26 00:40:45,475 | INFO | Epoch [ 40/300] β=0.250 | Train: 0.19243 | Val(Rekon): 0.09000 | Best: 0.07065 | Pat: 0/60 
+2026-05-26 00:40:47,865 | INFO | Epoch [ 50/300] β=0.312 | Train: 0.17783 | Val(Rekon): 0.07556 | Best: 0.07065 | Pat: 0/60 
+2026-05-26 00:40:50,218 | INFO | Epoch [ 60/300] β=0.375 | Train: 0.19252 | Val(Rekon): 0.08401 | Best: 0.07065 | Pat: 0/60 
+2026-05-26 00:40:52,622 | INFO | Epoch [ 70/300] β=0.438 | Train: 0.20932 | Val(Rekon): 0.10234 | Best: 0.07065 | Pat: 0/60 
+2026-05-26 00:40:54,897 | INFO | Epoch [ 80/300] β=0.500 | Train: 0.20536 | Val(Rekon): 0.08751 | Best: 0.07065 | Pat: 0/60 
+2026-05-26 00:40:57,171 | INFO | Epoch [ 90/300] β=0.500 | Train: 0.20965 | Val(Rekon): 0.10337 | Best: 0.07065 | Pat: 10/60 
+2026-05-26 00:40:59,501 | INFO | Epoch [100/300] β=0.500 | Train: 0.20857 | Val(Rekon): 0.11458 | Best: 0.07065 | Pat: 20/60 
+2026-05-26 00:41:01,757 | INFO | Epoch [110/300] β=0.500 | Train: 0.20239 | Val(Rekon): 0.08277 | Best: 0.07065 | Pat: 30/60 
+2026-05-26 00:41:04,015 | INFO | Epoch [120/300] β=0.500 | Train: 0.20439 | Val(Rekon): 0.09392 | Best: 0.07065 | Pat: 40/60 
+2026-05-26 00:41:06,474 | INFO | Epoch [130/300] β=0.500 | Train: 0.19605 | Val(Rekon): 0.09963 | Best: 0.07065 | Pat: 50/60 
+2026-05-26 00:41:09,071 | INFO | Epoch [140/300] β=0.500 | Train: 0.19331 | Val(Rekon): 0.08980 | Best: 0.07065 | Pat: 60/60 
+2026-05-26 00:41:09,073 | INFO | Early stopping — Epoch 140
+2026-05-26 00:41:09,108 | INFO | VAE eğitimi tamamlandı | Süre: 34.1s | Test Rekon Loss: 0.065187 | Test Full Loss: 0.239201
+2026-05-26 00:41:09,109 | INFO | Latent μ vektörleri çıkarılıyor...
+2026-05-26 00:41:09,116 | INFO | Latent boyutu: (1832, 16)
+2026-05-26 00:41:09,124 | INFO | GMM ile optimal k aranıyor...
+2026-05-26 00:41:12,414 | INFO |   k= 4 | BIC: -26853.9 | Silhouette: 0.2374 | DB: 1.2526
+2026-05-26 00:41:13,477 | INFO |   k= 5 | BIC: -29049.8 | Silhouette: 0.2418 | DB: 1.1809
+2026-05-26 00:41:14,738 | INFO |   k= 6 | BIC: -30054.7 | Silhouette: 0.2534 | DB: 1.2188
+2026-05-26 00:41:16,372 | INFO |   k= 7 | BIC: -30966.4 | Silhouette: 0.2397 | DB: 1.2135
+2026-05-26 00:41:18,443 | INFO |   k= 8 | BIC: -31697.0 | Silhouette: 0.2322 | DB: 1.3121
+2026-05-26 00:41:20,680 | INFO |   k= 9 | BIC: -31945.3 | Silhouette: 0.2221 | DB: 1.2440
+2026-05-26 00:41:22,698 | INFO |   k=10 | BIC: -32351.4 | Silhouette: 0.1981 | DB: 1.2794
+2026-05-26 00:41:25,558 | INFO |   k=11 | BIC: -32367.3 | Silhouette: 0.2049 | DB: 1.2578
+2026-05-26 00:41:25,559 | INFO | En iyi k (BIC+Sil+DB dengeli): 6
+2026-05-26 00:41:25,560 | INFO | Nihai GMM kümeleme uygulanıyor (k=6)...
+2026-05-26 00:41:25,743 | INFO |   Cluster 0: 269 oyuncu
+2026-05-26 00:41:25,743 | INFO |   Cluster 1: 400 oyuncu
+2026-05-26 00:41:25,744 | INFO |   Cluster 2: 345 oyuncu
+2026-05-26 00:41:25,744 | INFO |   Cluster 3: 356 oyuncu
+2026-05-26 00:41:25,744 | INFO |   Cluster 4: 324 oyuncu
+2026-05-26 00:41:25,745 | INFO |   Cluster 5: 138 oyuncu
+2026-05-26 00:41:25,745 | INFO | t-SNE hesaplanıyor...
+2026-05-26 00:41:46,420 | INFO | t-SNE tamamlandı.
+2026-05-26 00:41:46,421 | INFO | UMAP hesaplanıyor...
+2026-05-26 00:42:13,765 | INFO | UMAP tamamlandı.
+2026-05-26 00:42:13,766 | INFO | Çıktılar kaydediliyor...
+2026-05-26 00:42:14,071 | INFO | =================================================================
+2026-05-26 00:42:14,071 | INFO | V2 EĞİTİMİ TAMAMLANDI
+2026-05-26 00:42:14,072 | INFO | Çıktılar: C:\Users\enesv\OneDrive\Masaüstü\futbol stabil\artifacts\v2
+2026-05-26 00:42:14,072 | INFO | =================================================================
+2026-05-26 00:47:15,681 | INFO | =================================================================
+2026-05-26 00:47:15,683 | INFO | FUTBOLCU ANALİZ — V2 (VAE + GMM) Eğitimi
+2026-05-26 00:47:15,684 | INFO | =================================================================
+2026-05-26 00:47:15,684 | INFO | Veri yükleniyor...
+2026-05-26 00:47:16,160 | INFO | Oyuncu: 1832 | Feature: 20
+2026-05-26 00:47:16,196 | INFO | Split → Train: 1282 | Val: 275 | Test: 275
+2026-05-26 00:47:16,196 | INFO | VAE oluşturuluyor (latent_dim=16)...
+2026-05-26 00:47:16,269 | INFO | Parametre sayısı: 97,972
+2026-05-26 00:47:16,270 | INFO | VAE eğitimi başlıyor (β-Annealing)...
+2026-05-26 00:47:22,033 | INFO | Epoch [  1/300] beta=0.010 | Train: 0.31219 | Val(Rekon): 0.28883 | Best: 0.28883 | Pat: 0/60 BEST
+2026-05-26 00:47:22,357 | INFO | Epoch [  2/300] beta=0.020 | Train: 0.23601 | Val(Rekon): 0.18632 | Best: 0.18632 | Pat: 0/60 BEST
+2026-05-26 00:47:22,673 | INFO | Epoch [  3/300] beta=0.030 | Train: 0.19843 | Val(Rekon): 0.18069 | Best: 0.18069 | Pat: 0/60 BEST
+2026-05-26 00:47:22,972 | INFO | Epoch [  4/300] beta=0.040 | Train: 0.16742 | Val(Rekon): 0.14320 | Best: 0.14320 | Pat: 0/60 BEST
+2026-05-26 00:47:23,573 | INFO | Epoch [  6/300] beta=0.060 | Train: 0.16367 | Val(Rekon): 0.13368 | Best: 0.13368 | Pat: 0/60 BEST
+2026-05-26 00:47:23,868 | INFO | Epoch [  7/300] beta=0.070 | Train: 0.15599 | Val(Rekon): 0.11533 | Best: 0.11533 | Pat: 0/60 BEST
+2026-05-26 00:47:24,184 | INFO | Epoch [  8/300] beta=0.080 | Train: 0.16393 | Val(Rekon): 0.09713 | Best: 0.09713 | Pat: 0/60 BEST
+2026-05-26 00:47:24,506 | INFO | Epoch [  9/300] beta=0.090 | Train: 0.16328 | Val(Rekon): 0.09382 | Best: 0.09382 | Pat: 0/60 BEST
+2026-05-26 00:47:24,991 | INFO | Epoch [ 10/300] beta=0.100 | Train: 0.16803 | Val(Rekon): 0.10653 | Best: 0.09382 | Pat: 0/60 
+2026-05-26 00:47:26,684 | INFO | Epoch [ 14/300] beta=0.140 | Train: 0.16848 | Val(Rekon): 0.08446 | Best: 0.08446 | Pat: 0/60 BEST
+2026-05-26 00:47:28,549 | INFO | Epoch [ 20/300] beta=0.200 | Train: 0.17184 | Val(Rekon): 0.09060 | Best: 0.08446 | Pat: 0/60 
+2026-05-26 00:47:29,193 | INFO | Epoch [ 22/300] beta=0.220 | Train: 0.18239 | Val(Rekon): 0.07825 | Best: 0.07825 | Pat: 0/60 BEST
+2026-05-26 00:47:32,266 | INFO | Epoch [ 30/300] beta=0.300 | Train: 0.19673 | Val(Rekon): 0.08021 | Best: 0.07825 | Pat: 0/60 
+2026-05-26 00:47:36,109 | INFO | Epoch [ 40/300] beta=0.400 | Train: 0.19971 | Val(Rekon): 0.10772 | Best: 0.07825 | Pat: 0/60 
+2026-05-26 00:47:39,364 | INFO | Epoch [ 50/300] beta=0.500 | Train: 0.20293 | Val(Rekon): 0.10305 | Best: 0.07825 | Pat: 0/60 
+2026-05-26 00:47:42,372 | INFO | Epoch [ 60/300] beta=0.600 | Train: 0.21078 | Val(Rekon): 0.11361 | Best: 0.07825 | Pat: 0/60 
+2026-05-26 00:47:45,223 | INFO | Epoch [ 70/300] beta=0.700 | Train: 0.21800 | Val(Rekon): 0.11970 | Best: 0.07825 | Pat: 0/60 
+2026-05-26 00:47:48,191 | INFO | Epoch [ 80/300] beta=0.800 | Train: 0.22997 | Val(Rekon): 0.13293 | Best: 0.07825 | Pat: 0/60 
+2026-05-26 00:47:51,248 | INFO | Epoch [ 90/300] beta=0.800 | Train: 0.22563 | Val(Rekon): 0.11093 | Best: 0.07825 | Pat: 10/60 
+2026-05-26 00:47:55,358 | INFO | Epoch [100/300] beta=0.800 | Train: 0.23014 | Val(Rekon): 0.11815 | Best: 0.07825 | Pat: 20/60 
+2026-05-26 00:47:58,634 | INFO | Epoch [110/300] beta=0.800 | Train: 0.22857 | Val(Rekon): 0.10681 | Best: 0.07825 | Pat: 30/60 
+2026-05-26 00:48:02,174 | INFO | Epoch [120/300] beta=0.800 | Train: 0.22576 | Val(Rekon): 0.11933 | Best: 0.07825 | Pat: 40/60 
+2026-05-26 00:48:05,637 | INFO | Epoch [130/300] beta=0.800 | Train: 0.22234 | Val(Rekon): 0.11433 | Best: 0.07825 | Pat: 50/60 
+2026-05-26 00:48:08,648 | INFO | Epoch [140/300] beta=0.800 | Train: 0.22752 | Val(Rekon): 0.11318 | Best: 0.07825 | Pat: 60/60 
+2026-05-26 00:48:08,649 | INFO | Early stopping - Epoch 140
+2026-05-26 00:48:08,739 | INFO | VAE egitimi tamamlandi | Sure: 47.4s | Test Rekon Loss: 0.070708 | Test Full Loss: 0.259869
+2026-05-26 00:48:08,745 | INFO | Latent μ vektörleri çıkarılıyor...
+2026-05-26 00:48:08,753 | INFO | Latent boyutu: (1832, 16)
+2026-05-26 00:48:08,762 | INFO | GMM ile optimal k aranıyor...
+2026-05-26 00:48:12,822 | INFO |   k= 4 | BIC: -48484.0 | Silhouette: 0.2729 | DB: 1.1238
+2026-05-26 00:48:14,415 | INFO |   k= 5 | BIC: -51841.7 | Silhouette: 0.2540 | DB: 1.1542
+2026-05-26 00:48:16,593 | INFO |   k= 6 | BIC: -52828.6 | Silhouette: 0.2581 | DB: 1.1360
+2026-05-26 00:48:18,706 | INFO |   k= 7 | BIC: -53508.9 | Silhouette: 0.2552 | DB: 1.1463
+2026-05-26 00:48:21,277 | INFO |   k= 8 | BIC: -54737.3 | Silhouette: 0.2470 | DB: 1.0807
+2026-05-26 00:48:23,592 | INFO |   k= 9 | BIC: -55381.8 | Silhouette: 0.2414 | DB: 1.1617
+2026-05-26 00:48:26,153 | INFO |   k=10 | BIC: -55484.1 | Silhouette: 0.2362 | DB: 1.1806
+2026-05-26 00:48:29,419 | INFO |   k=11 | BIC: -55996.0 | Silhouette: 0.2426 | DB: 1.1999
+2026-05-26 00:48:29,420 | INFO | En iyi k (BIC+Sil+DB dengeli): 8
+2026-05-26 00:48:29,420 | INFO | Nihai GMM kümeleme uygulanıyor (k=8)...
+2026-05-26 00:48:29,553 | INFO |   Cluster 0: 252 oyuncu
+2026-05-26 00:48:29,553 | INFO |   Cluster 1: 224 oyuncu
+2026-05-26 00:48:29,553 | INFO |   Cluster 2: 262 oyuncu
+2026-05-26 00:48:29,553 | INFO |   Cluster 3: 214 oyuncu
+2026-05-26 00:48:29,553 | INFO |   Cluster 4: 112 oyuncu
+2026-05-26 00:48:29,553 | INFO |   Cluster 5: 276 oyuncu
+2026-05-26 00:48:29,553 | INFO |   Cluster 6: 276 oyuncu
+2026-05-26 00:48:29,553 | INFO |   Cluster 7: 216 oyuncu
+2026-05-26 00:48:29,553 | INFO | t-SNE hesaplanıyor...
+2026-05-26 00:48:49,786 | INFO | t-SNE tamamlandı.
+2026-05-26 00:48:49,786 | INFO | UMAP hesaplanıyor...
+2026-05-26 00:49:23,360 | INFO | UMAP tamamlandı.
+2026-05-26 00:49:23,361 | INFO | Çıktılar kaydediliyor...
+2026-05-26 00:49:23,510 | INFO | =================================================================
+2026-05-26 00:49:23,511 | INFO | V2 EĞİTİMİ TAMAMLANDI
+2026-05-26 00:49:23,511 | INFO | Çıktılar: C:\Users\enesv\OneDrive\Masaüstü\futbol stabil\artifacts\v2
+2026-05-26 00:49:23,512 | INFO | =================================================================

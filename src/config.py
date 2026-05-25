@@ -70,8 +70,8 @@ AE_LATENT_DIM  = 12   # Autoencoder latent boyutu
 VAE_LATENT_DIM = 16   # VAE latent boyutu
 
 TRAINING = {
-    "epochs":       200,
-    "patience":     25,
+    "epochs":       300,      # ← 200'den artırıldı
+    "patience":     60,       # ← 25'ten artırıldı (beta annealing'e tolerans)
     "batch_size":   64,
     "lr":           3e-4,
     "weight_decay": 1e-4,
@@ -82,14 +82,14 @@ TRAINING = {
 VAE_TRAINING = {
     **{k: v for k, v in TRAINING.items()},
     "beta_start":  0.0,
-    "beta_end":    1.0,
-    "beta_warmup": 50,   # beta annealing epoch sayısı
+    "beta_end":    0.8,       # 0.5'ten arttirildi — daha iyi latent yapi icin
+    "beta_warmup": 80,        # 50'den artirildi (daha yumusak annealing)
 }
 
 # ---------------------------------------------------------------------------
 # Kümeleme Parametreleri
 # ---------------------------------------------------------------------------
-CLUSTER_K_RANGE = range(5, 11)
+CLUSTER_K_RANGE = range(4, 12)  # ← 5'ten 4'e genişletildi
 
 # ---------------------------------------------------------------------------
 # Benzerlik Ağırlıkları
@@ -109,14 +109,15 @@ CLUSTER_NAMES_V1: dict[int, str] = {
 }
 
 CLUSTER_NAMES_V2: dict[int, str] = {
-    0: "Oyun Kurucular (Playmakers)",
-    1: "Pasör Stoperler (Ball-Playing CBs)",
-    2: "Dengeli/Klasik Savunmacılar",
-    3: "Dinamik Kanatlar & 10 Numaralar",
-    4: "İlerici Oyun Kurucular",
-    5: "Fırsatçı / Pivot Forvetler",
-    6: "Saf Bitiriciler (Pure Goalscorers)",
-    7: "Yok Ediciler & Dinamolar",
+    # Veri kaynağı: artifacts/v2/cluster_feature_ortalamalar.csv (beta=0.8 eğitimi)
+    0: "Çalışkan / Yardımcı Rol Oyuncuları",    # Düşük hücum, orta Succ%/SCA90
+    1: "Pasör Stoperler (Ball-Playing CBs)",     # Yüksek defans + topla taşıma + Cmp%
+    2: "Yaratıcı & Skorer Hücumcular",           # Yüksek Ast/xAG/KP/SCA90 + gol
+    3: "İki Yönlü Dinamik Orta Sahalar",         # Orta defans + orta yaratıcılık
+    4: "Saf Bitiriciler (Pure Goalscorers)",      # En yüksek Gls/xG/npxG/Sh90
+    5: "Fırsatçı / Pivot Forvetler",             # Yüksek Sh/90 + SCA90, orta gol
+    6: "Yok Ediciler & Dinamolar",               # Çok yüksek Tkl/Int + yaratıcılık
+    7: "Savunma Odaklı Oyuncular",               # Yüksek Cmp%/Succ%, düşük hücum
 }
 
 # Geriye dönük uyumluluk için CLUSTER_NAMES, CLUSTER_NAMES_V2'ye eşittir

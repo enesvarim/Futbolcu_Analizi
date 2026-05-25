@@ -113,19 +113,28 @@ def compare_players(
         latent_a, latent_b   : np.ndarray
         similarity_pct       : int  — 0-100 arası benzerlik yüzdesi
     """
-    def _get(stats):
-        _, _, latent = predict_and_find_similar(
+    def _get_info(stats):
+        cluster, _, latent = predict_and_find_similar(
             stats, model, scaler, latent_matrix, latent_df, version="v2"
         )
-        return latent
+        return cluster, latent
 
-    la = _get(stats_a)
-    lb = _get(stats_b)
+    c_a, la = _get_info(stats_a)
+    c_b, lb = _get_info(stats_b)
 
-    cos_sim     = cosine_similarity(la.reshape(1, -1), lb.reshape(1, -1))[0][0]
-    sim_pct     = int(((cos_sim + 1) / 2) * 100)
+    # Hibrit benzerlik hesabı: 0.6 * Cosine + 0.4 * Euclidean
+    q_a = la.reshape(1, -1)
+    q_b = lb.reshape(1, -1)
+    cos_sim  = cosine_similarity(q_a, q_b)[0][0]
+    euc_dist = euclidean_distances(q_a, q_b)[0][0]
+    euc_sim  = 1.0 / (1.0 + euc_dist)
+
+    hybrid_score = COSINE_WEIGHT * cos_sim + EUCLIDEAN_WEIGHT * euc_sim
+    sim_pct = int(round(hybrid_score * 100))
 
     return {
+        "cluster_a":      c_a,
+        "cluster_b":      c_b,
         "latent_a":       la,
         "latent_b":       lb,
         "similarity_pct": sim_pct,
