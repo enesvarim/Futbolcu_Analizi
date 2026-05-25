@@ -33,9 +33,14 @@ def compute_hybrid_similarity(
     """
     q = query_vec.reshape(1, -1)
     cos_sim  = cosine_similarity(q, latent_matrix)[0]
+    
+    # Cosine değerini [-1, 1] aralığından [0, 1] aralığına ölçekle (Negatif çıkmasını önlemek için!)
+    cos_sim_scaled = (cos_sim + 1.0) / 2.0
+    
     euc_dist = euclidean_distances(q, latent_matrix)[0]
     euc_sim  = 1.0 / (1.0 + euc_dist)
-    return cosine_w * cos_sim + euclidean_w * euc_sim
+    
+    return cosine_w * cos_sim_scaled + euclidean_w * euc_sim
 
 
 def predict_and_find_similar(
@@ -122,14 +127,16 @@ def compare_players(
     c_a, la = _get_info(stats_a)
     c_b, lb = _get_info(stats_b)
 
-    # Hibrit benzerlik hesabı: 0.6 * Cosine + 0.4 * Euclidean
+    # Hibrit benzerlik hesabı (Negatif çıkmayı önlemek için Cosine [0,1] aralığına ölçeklenmiştir)
     q_a = la.reshape(1, -1)
     q_b = lb.reshape(1, -1)
     cos_sim  = cosine_similarity(q_a, q_b)[0][0]
+    cos_sim_scaled = (cos_sim + 1.0) / 2.0
+    
     euc_dist = euclidean_distances(q_a, q_b)[0][0]
     euc_sim  = 1.0 / (1.0 + euc_dist)
 
-    hybrid_score = COSINE_WEIGHT * cos_sim + EUCLIDEAN_WEIGHT * euc_sim
+    hybrid_score = COSINE_WEIGHT * cos_sim_scaled + EUCLIDEAN_WEIGHT * euc_sim
     sim_pct = int(round(hybrid_score * 100))
 
     return {
