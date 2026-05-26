@@ -16,8 +16,19 @@ ARTIFACT_DIR = ROOT_DIR / "artifacts"
 # Sabit artifact yolları (hardcode klasör adı yok)
 V1_DIR   = ARTIFACT_DIR / "v1"
 V2_DIR   = ARTIFACT_DIR / "v2"
+V3_DIR   = ARTIFACT_DIR / "v3"
+
 V1_MODEL = V1_DIR / "modeller" / "best_autoencoder.pth"
 V2_MODEL = V2_DIR / "modeller" / "best_vae.pth"
+
+# Model V3 - SOM çıktı dosyaları
+V3_SOM_MODEL   = V3_DIR / "modeller" / "som_model.pkl"
+V3_SOM_SCALER  = V3_DIR / "modeller" / "som_scaler.pkl"
+V3_SOM_COORDS  = V3_DIR / "som_koordinatlari.csv"
+V3_SOM_SIMILAR = V3_DIR / "som_benzer_oyuncular.csv"
+V3_SOM_METRICS = V3_DIR / "som_metrikleri.json"
+V3_SOM_PARAMS  = V3_DIR / "som_parametre_karsilastirma.csv"
+
 
 # ---------------------------------------------------------------------------
 # Feature Tanımları  (projedeki TEK tanım — diğer dosyalar buradan import eder)
