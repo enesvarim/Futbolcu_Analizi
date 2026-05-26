@@ -95,7 +95,8 @@ def load_system():
                     superlig_df[feat] = (sl_series - alt) / payda
         else:
             superlig_df = pd.DataFrame()
-    except Exception:
+    except Exception as e:
+        st.warning(f"Süper Lig verisi yüklenirken hata oluştu: {e}")
         superlig_df = pd.DataFrame()
 
     return (
@@ -256,18 +257,30 @@ with tab2:
             index=1 if len(comparison_options) > 1 else 0
         )
 
-    if st.button("Oyuncuları Karşılaştır", type="primary", use_container_width=True):
-        def _get_player_stats(p_name):
-            if p_name.startswith("⭐ "):
-                real_name = p_name[2:]
-                idx = superlig_df[superlig_df["Player"] == real_name].index[0]
-                stats = np.array([superlig_df.iloc[idx][f] for f in FEATURES])
-                display_name = real_name
-            else:
-                idx = players[players["Player"] == p_name].index[0]
-                stats = np.array([df_raw.iloc[idx][f] for f in FEATURES])
-                display_name = p_name
-            return stats, display_name
+    if st.button("Oyuncuları Kıyasla", type="primary", use_container_width=True):
+        # BUG 5 FIX: IndexError korumalı oyuncu istatistiği yükleme
+        def _get_player_stats(p_name: str):
+            try:
+                if p_name.startswith("⭐ "):
+                    real_name = p_name[len("⭐ "):]  # Unicode-safe slice
+                    rows = superlig_df[superlig_df["Player"] == real_name]
+                    if rows.empty:
+                        st.error(f"❌ '{real_name}' Süper Lig verisinde bulunamadı.")
+                        st.stop()
+                    stats = np.array([rows.iloc[0][f] for f in FEATURES])
+                    display_name = real_name
+                else:
+                    rows = players[players["Player"] == p_name]
+                    if rows.empty:
+                        st.error(f"❌ '{p_name}' veri setinde bulunamadı.")
+                        st.stop()
+                    raw_idx = rows.index[0]
+                    stats = np.array([df_raw.iloc[raw_idx][f] for f in FEATURES])
+                    display_name = p_name
+                return stats, display_name
+            except Exception as e:
+                st.error(f"❌ Oyuncu verisi alınırken hata: {e}")
+                st.stop()
 
         stats_a, name_a = _get_player_stats(player_a)
         stats_b, name_b = _get_player_stats(player_b)

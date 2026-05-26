@@ -7,6 +7,7 @@ Cosine (0.6) + Euclidean (0.4) ağırlıklı hibrit skor.
 import numpy as np
 import pandas as pd
 import torch
+from scipy.stats import mode as _scipy_mode
 from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances
 from sklearn.preprocessing import RobustScaler
 
@@ -80,7 +81,10 @@ def predict_and_find_similar(
     hybrid_scores = compute_hybrid_similarity(latent_vec, latent_matrix)
     top_indices   = np.argsort(hybrid_scores)[::-1][:top_n]
 
-    predicted_cluster = int(latent_df.iloc[top_indices[0]]["Cluster"])
+
+    # Bu KNN sınıflandırmasının standart yaklaşımı — kenarda kalan oyuncular için daha doğru sonuç verir.
+    neighbor_clusters = [int(latent_df.iloc[i]["Cluster"]) for i in top_indices]
+    predicted_cluster = int(_scipy_mode(neighbor_clusters, keepdims=False).mode)
 
     rows = []
     for idx in top_indices:

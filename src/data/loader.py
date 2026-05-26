@@ -22,7 +22,10 @@ def load_raw_players(veri_dir: Path = VERI_DIR) -> pd.DataFrame:
     """
     df = pd.read_csv(veri_dir / "futbolcular.csv", encoding="utf-8")
     df = df[~df["Pos"].str.contains(EXCLUDE_POS, na=False)]
-    df = df[df["90s"] >= MIN_90S].reset_index(drop=True)
+    df = df[df["90s"] >= MIN_90S]
+
+    # İlk görünen kayıt korunur — latent_features.csv ile tutarlılık için gerekli.
+    df = df.drop_duplicates(subset=["Player"], keep="first").reset_index(drop=True)
     return df
 
 

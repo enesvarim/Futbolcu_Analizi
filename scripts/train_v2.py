@@ -12,6 +12,7 @@ import json
 import logging
 import sys
 from pathlib import Path
+import joblib
 
 # Windows terminali UTF-8'e zorla (μ, Türkçe karakterler için)
 if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
@@ -151,6 +152,9 @@ if UMAP_AVAILABLE:
                             metric="euclidean", random_state=42)
     latent_umap = reducer.fit_transform(mu_vectors)
     log.info("UMAP tamamlandı.")
+    #  UMAP modelini kaydet — yeni oyuncuları haritaya eklemek için
+    joblib.dump(reducer, MODEL_DIR / "umap_model.pkl")
+    log.info(f"UMAP modeli kaydedildi: {MODEL_DIR / 'umap_model.pkl'}")
 else:
     log.warning("umap-learn kurulu değil, UMAP yerine t-SNE kullanılacak.")
     latent_umap = latent_2d
@@ -192,7 +196,8 @@ cluster_means.round(4).to_csv(V2_DIR / "cluster_feature_ortalamalar.csv")
 torch.save(model.state_dict(), MODEL_DIR / "football_vae_final.pth")
 
 # Eğitim geçmişi
-history["avg_silhouette"]       = round(float(np.mean([0])), 4)
+# BUG 1 FIX: Gerçek ortalama Silhouette skoru (np.mean([0]) her zaman 0 veriyordu)
+history["avg_silhouette"]       = round(float(np.mean(cluster_metrics["silhouette"])), 4)
 history["anomaly_threshold"]    = round(float(np.percentile(per_sample_recon, 95)), 6)
 with open(LOG_DIR / "egitim_gecmisi.json", "w", encoding="utf-8") as f:
     json.dump(history, f, ensure_ascii=False, indent=2)
