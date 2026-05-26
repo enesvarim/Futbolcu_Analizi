@@ -1,0 +1,50 @@
+[
+    {
+        "grid_size": "8x8",
+        "total_cells": 64,
+        "used_cells": 64,
+        "min_players_per_cell": 12,
+        "max_players_per_cell": 51,
+        "mean_players_per_cell": 28.09375,
+        "std_players_per_cell": 8.605496121204371,
+        "quantization_error": 1.6595819625190336,
+        "topographic_error": 0.09621802002224694,
+        "silhouette_score": 0.07009546145783489
+    },
+    {
+        "grid_size": "10x10",
+        "total_cells": 100,
+        "used_cells": 100,
+        "min_players_per_cell": 5,
+        "max_players_per_cell": 41,
+        "mean_players_per_cell": 17.98,
+        "std_players_per_cell": 6.527300863730472,
+        "quantization_error": 1.5594899953762438,
+        "topographic_error": 0.16518353726362625,
+        "silhouette_score": 0.057023808106875844
+    },
+    {
+        "grid_size": "12x12",
+        "total_cells": 144,
+        "used_cells": 144,
+        "min_players_per_cell": 4,
+        "max_players_per_cell": 28,
+        "mean_players_per_cell": 12.48611111111111,
+        "std_players_per_cell": 4.712705800237901,
+        "quantization_error": 1.4810621822615262,
+        "topographic_error": 0.19521690767519467,
+        "silhouette_score": 0.05219767258430183
+    },
+    {
+        "grid_size": "15x15",
+        "total_cells": 225,
+        "used_cells": 225,
+        "min_players_per_cell": 2,
+        "max_players_per_cell": 22,
+        "mean_players_per_cell": 7.9911111111111115,
+        "std_players_per_cell": 3.7843558509142885,
+        "quantization_error": 1.3803212487332226,
+        "topographic_error": 0.22302558398220246,
+        "silhouette_score": 0.048468828512899964
+    }
+]

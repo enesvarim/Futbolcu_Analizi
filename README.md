@@ -123,3 +123,70 @@ Hibrit Skor = 0.6 × Cosine Similarity + 0.4 × Euclidean Similarity
 | 5 | Fırsatçı / Pivot Forvetler |
 | 6 | Saf Bitiriciler (Pure Goalscorers) |
 | 7 | Yok Ediciler & Dinamolar |
+
+
+
+## Model V3 - SOM (Self-Organizing Map)
+
+Bu projeye üçüncü model olarak SOM (Self-Organizing Map / Kohonen Haritası) eklenmiştir. SOM, gözetimsiz öğrenme yaklaşımıyla çalışan bir yapay sinir ağı modelidir. Oyuncuların 20 temel performans metriğine göre iki boyutlu bir harita üzerinde konumlandırılmasını sağlar.
+
+### Kullanılan Özellikler
+
+Model V3, diğer modellerle aynı 20 futbolcu istatistiğini kullanır:
+
+- Hücum: Gls, Ast, xG, xAG, npxG, Sh/90
+- Pas & Oyun Kurma: Cmp%, PrgP, KP, PPA, SCA90
+- Defans: Tkl, TklW, Int, Clr
+- Top Taşıma & Hareket: PrgC, PrgR, Succ%, Carries, Touches
+
+### Ön İşleme
+
+SOM modeli eğitilmeden önce veri setinde aşağıdaki filtreleme işlemleri uygulanmıştır:
+
+- Kaleciler veri setinden çıkarılmıştır.
+- Çok az süre alan oyuncular elenmiştir.
+- En az 5 maçlık süreye karşılık gelen `90s >= 5` koşulu uygulanmıştır.
+- Eksik değerler uygun şekilde doldurulmuştur.
+- Sayısal özellikler ölçeklendirilmiştir.
+
+Bu işlemler sonucunda model, 1798 futbolcu üzerinde eğitilmiştir.
+
+### Model Yapısı
+
+Model V3 için 12x12 boyutunda SOM haritası kullanılmıştır. Bu haritada her futbolcu, oyun stiline göre bir SOM bölgesine yerleştirilmiştir. Aynı veya komşu bölgelerde bulunan oyuncuların oyun stillerinin daha benzer olduğu kabul edilmiştir.
+
+### Parametre Karşılaştırması
+
+SOM modeli için farklı harita boyutları denenmiştir:
+
+| Harita Boyutu | Kullanılan Hücre | Quantization Error | Topographic Error | Silhouette Score |
+|---|---:|---:|---:|---:|
+| 8x8 | 64 / 64 | 1.6596 | 0.0962 | 0.0701 |
+| 10x10 | 100 / 100 | 1.5595 | 0.1652 | 0.0570 |
+| 12x12 | 144 / 144 | 1.4811 | 0.1952 | 0.0522 |
+| 15x15 | 225 / 225 | 1.3803 | 0.2230 | 0.0485 |
+
+15x15 harita en düşük Quantization Error değerini üretmesine rağmen hücre başına düşen oyuncu sayısının bazı bölgelerde çok azalması ve Topographic Error değerinin yükselmesi nedeniyle fazla parçalanma riski taşımaktadır. 8x8 harita daha düşük Topographic Error üretmesine rağmen bazı hücrelerde oyuncu yoğunluğu artmıştır. Bu nedenle temsil gücü ve dengeli dağılım açısından 12x12 SOM haritası tercih edilmiştir.
+
+### Streamlit Arayüz Entegrasyonu
+
+Model V3, Streamlit arayüzüne entegre edilmiştir. Tekli oyuncu analizinde artık üç model birlikte görüntülenmektedir:
+
+- Model V1: Autoencoder
+- Model V2: VAE + GMM
+- Model V3: SOM
+
+Model V3 ekranında oyuncunun SOM bölgesi, en yakın veri seti oyuncusu ve SOM haritasına göre benzer oyuncular listelenmektedir.
+
+### Üretilen Dosyalar
+
+Model V3 eğitimi sonucunda aşağıdaki dosyalar oluşturulmuştur:
+
+```text
+artifacts/v3/modeller/som_model.pkl
+artifacts/v3/modeller/som_scaler.pkl
+artifacts/v3/som_koordinatlari.csv
+artifacts/v3/som_benzer_oyuncular.csv
+artifacts/v3/som_metrikleri.json
+artifacts/v3/som_parametre_karsilastirma.csv
+artifacts/v3/som_parametre_karsilastirma.json
