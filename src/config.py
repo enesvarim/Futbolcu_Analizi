@@ -20,6 +20,7 @@ V3_DIR   = ARTIFACT_DIR / "v3"
 
 V1_MODEL = V1_DIR / "modeller" / "best_autoencoder.pth"
 V2_MODEL = V2_DIR / "modeller" / "best_vae.pth"
+V2_GMM   = V2_DIR / "modeller" / "gmm_model.pkl"
 
 # Model V3 - SOM çıktı dosyaları
 V3_SOM_MODEL   = V3_DIR / "modeller" / "som_model.pkl"

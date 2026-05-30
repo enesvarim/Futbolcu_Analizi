@@ -4,6 +4,10 @@ src/analysis/similarity.py
 Hibrit benzerlik hesabı ve oyuncu öneri sistemi.
 Cosine (0.6) + Euclidean (0.4) ağırlıklı hibrit skor.
 """
+import logging
+from typing import Optional
+
+import joblib
 import numpy as np
 import pandas as pd
 import torch
@@ -11,7 +15,9 @@ from scipy.stats import mode as _scipy_mode
 from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances
 from sklearn.preprocessing import RobustScaler
 
-from src.config import COSINE_WEIGHT, EUCLIDEAN_WEIGHT, CLUSTER_NAMES, CLUSTER_NAMES_V1, FEATURES
+from src.config import COSINE_WEIGHT, EUCLIDEAN_WEIGHT, CLUSTER_NAMES, CLUSTER_NAMES_V1, FEATURES, V2_GMM
+
+log = logging.getLogger(__name__)
 
 
 def compute_hybrid_similarity(
@@ -52,7 +58,7 @@ def predict_and_find_similar(
     latent_df: pd.DataFrame,
     version: str = "v1",
     top_n: int   = 5,
-) -> tuple[int, pd.DataFrame, np.ndarray]:
+) -> tuple[int, pd.DataFrame, np.ndarray, Optional[float]]:
     """
     Oyuncu istatistiklerini latent uzaya gönderir ve en benzer oyuncuları bulur.
 
@@ -71,6 +77,7 @@ def predict_and_find_similar(
     predicted_cluster : int
     similar_df        : pd.DataFrame  [Oyuncu, Oyun Stili, Benzerlik (%)]
     latent_vec        : np.ndarray    [latent_dim]
+    confidence_pct    : float | None  — GMM güven skoru (0-100), sadece v2 için
     """
     scaled  = scaler.transform(stats_array.reshape(1, -1))
     tensor  = torch.FloatTensor(scaled)
@@ -101,7 +108,17 @@ def predict_and_find_similar(
             "Benzerlik (%)":     round(hybrid_scores[idx] * 100, 1),
         })
 
-    return predicted_cluster, pd.DataFrame(rows), latent_vec[0]
+    # GMM Güven Skoru — sadece V2 için
+    confidence_pct: Optional[float] = None
+    if version == "v2" and V2_GMM.exists():
+        try:
+            gmm = joblib.load(V2_GMM)
+            proba = gmm.predict_proba(latent_vec)          # [1, n_clusters]
+            confidence_pct = float(proba.max(axis=1)[0]) * 100  # 0-100 arası
+        except Exception as e:
+            log.warning(f"GMM confidence hesaplanamadı: {e}")
+
+    return predicted_cluster, pd.DataFrame(rows), latent_vec[0], confidence_pct
 
 
 def compare_players(
@@ -123,7 +140,7 @@ def compare_players(
         similarity_pct       : int  — 0-100 arası benzerlik yüzdesi
     """
     def _get_info(stats):
-        cluster, _, latent = predict_and_find_similar(
+        cluster, _, latent, _ = predict_and_find_similar(
             stats, model, scaler, latent_matrix, latent_df, version="v2"
         )
         return cluster, latent
