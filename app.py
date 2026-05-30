@@ -225,7 +225,7 @@ with tab1:
         col1, col2, col3 = st.columns(3)
 
         # Model V1
-        c1, sim_v1, _ = predict_and_find_similar(
+        c1, sim_v1, _, _ = predict_and_find_similar(
             stats, model_v1, scaler, v1_matrix, v1_latent_df, version="v1"
         )
         with col1:
@@ -234,11 +234,19 @@ with tab1:
             st.dataframe(sim_v1, use_container_width=True, hide_index=True)
 
         # Model V2
-        c2, sim_v2, _ = predict_and_find_similar(
+        c2, sim_v2, _, confidence_pct = predict_and_find_similar(
             stats, model_v2, scaler, v2_matrix, v2_latent_df, version="v2"
         )
         with col2:
             render_cluster_card("Model V2 (VAE + GMM)", c2, version="v2")
+            if confidence_pct is not None:
+                st.metric("🎯 Model Güveni", f"%{confidence_pct:.1f}")
+                if confidence_pct >= 80:
+                    st.success(f"Yüksek güven — model bu küme atamasından %{confidence_pct:.1f} emin.")
+                elif confidence_pct >= 60:
+                    st.warning(f"Orta güven — oyuncu birden fazla kümeye yakın olabilir (%{confidence_pct:.1f}).")
+                else:
+                    st.error(f"Düşük güven — küme ataması belirsiz (%{confidence_pct:.1f}).")
             st.markdown("#### V2 Uzayındaki Benzer Oyuncular")
             st.dataframe(sim_v2, use_container_width=True, hide_index=True)
 
@@ -341,18 +349,18 @@ with tab2:
         stats_b, name_b = _get_player_stats(player_b)
 
         # V1 kümeleri
-        c1_a, _, _ = predict_and_find_similar(
+        c1_a, _, _, _ = predict_and_find_similar(
             stats_a, model_v1, scaler, v1_matrix, v1_latent_df, version="v1"
         )
-        c1_b, _, _ = predict_and_find_similar(
+        c1_b, _, _, _ = predict_and_find_similar(
             stats_b, model_v1, scaler, v1_matrix, v1_latent_df, version="v1"
         )
 
         # V2 kümeleri + benzerlik
-        c2_a, _, _ = predict_and_find_similar(
+        c2_a, _, _, _ = predict_and_find_similar(
             stats_a, model_v2, scaler, v2_matrix, v2_latent_df, version="v2"
         )
-        c2_b, _, _ = predict_and_find_similar(
+        c2_b, _, _, _ = predict_and_find_similar(
             stats_b, model_v2, scaler, v2_matrix, v2_latent_df, version="v2"
         )
 

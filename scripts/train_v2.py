@@ -195,6 +195,10 @@ cluster_means.round(4).to_csv(V2_DIR / "cluster_feature_ortalamalar.csv")
 # Model son kopyası
 torch.save(model.state_dict(), MODEL_DIR / "football_vae_final.pth")
 
+# GMM modelini kaydet — inference sırasında confidence hesabı için
+joblib.dump(gmm_final, MODEL_DIR / "gmm_model.pkl")
+log.info(f"GMM modeli kaydedildi: {MODEL_DIR / 'gmm_model.pkl'}")
+
 # Eğitim geçmişi
 # BUG 1 FIX: Gerçek ortalama Silhouette skoru (np.mean([0]) her zaman 0 veriyordu)
 history["avg_silhouette"]       = round(float(np.mean(cluster_metrics["silhouette"])), 4)
