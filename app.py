@@ -16,7 +16,6 @@ from pathlib import Path
 from src.config import (
     FEATURES, FEATURE_LABELS, CLUSTER_NAMES, CLUSTER_NAMES_V1,
     V1_DIR, V2_DIR, V1_MODEL, V2_MODEL,
-    V3_SOM_COORDS, V3_SOM_SIMILAR,
     AE_LATENT_DIM, VAE_LATENT_DIM, VERI_DIR, EXCLUDE_POS, MIN_90S
 )
 from src.data.loader import load_raw_players, load_clean_features
@@ -63,10 +62,6 @@ def load_system():
     v1_coords_df  = pd.read_csv(V1_DIR / "tsne_umap_koordinatlari.csv")
     v2_coords_df  = pd.read_csv(V2_DIR / "tsne_umap_koordinatlari.csv")
 
-    # Model V3 - SOM artifact dosyaları
-    v3_som_coords_df = pd.read_csv(V3_SOM_COORDS)
-    v3_som_similar_df = pd.read_csv(V3_SOM_SIMILAR)
-
     # Latent matrisleri
     v1_matrix = v1_latent_df[[c for c in v1_latent_df.columns if c.startswith("L")]].values
     v2_matrix = v2_latent_df[[c for c in v2_latent_df.columns if c.startswith("mu_")]].values
@@ -111,7 +106,6 @@ def load_system():
         v1_latent_df, v2_latent_df,
         v1_matrix, v2_matrix,
         v1_coords_df, v2_coords_df,
-        v3_som_coords_df, v3_som_similar_df,
         superlig_df,
     )
 
@@ -124,7 +118,6 @@ with st.spinner("Modeller ve yapay zeka ağı yükleniyor..."):
             v1_latent_df, v2_latent_df,
             v1_matrix, v2_matrix,
             v1_coords_df, v2_coords_df,
-            v3_som_coords_df, v3_som_similar_df,
             superlig_df,
         ) = load_system()
         st.toast("Sistem Başarıyla Yüklendi!", icon="✅")
@@ -133,37 +126,6 @@ with st.spinner("Modeller ve yapay zeka ağı yükleniyor..."):
         st.stop()
 
 
-def predict_som_result(
-    stats_array: np.ndarray,
-    som_coords_df: pd.DataFrame,
-    som_similar_df: pd.DataFrame,
-):
-    """
-    Girilen oyuncu istatistiklerine en yakın SOM oyuncusunu bulur.
-    Bu oyuncunun SOM bölgesini ve SOM tabanlı benzer oyuncularını döndürür.
-    """
-    feature_matrix = som_coords_df[FEATURES].values.astype(float)
-    query = stats_array.reshape(1, -1)
-
-    distances = np.linalg.norm(feature_matrix - query, axis=1)
-    nearest_idx = int(np.argmin(distances))
-
-    nearest_player = som_coords_df.iloc[nearest_idx]["Player"]
-    som_cluster = som_coords_df.iloc[nearest_idx]["som_cluster"]
-
-    similar_rows = som_similar_df[
-        som_similar_df["oyuncu"] == nearest_player
-    ].copy()
-
-    similar_display = similar_rows[
-        ["benzer_oyuncu", "benzerlik_yuzde", "benzer_oyuncu_som_cluster"]
-    ].rename(columns={
-        "benzer_oyuncu": "Oyuncu",
-        "benzerlik_yuzde": "Benzerlik (%)",
-        "benzer_oyuncu_som_cluster": "SOM Bölgesi",
-    })
-
-    return nearest_player, som_cluster, similar_display
 
 # ---------------------------------------------------------------------------
 # Sidebar — Oyuncu Parametreleri
@@ -210,8 +172,7 @@ for feat in FEATURES:
 st.title("⚽ Futbolcu Oyun Stili Analizi")
 st.markdown(
     "Seçilen istatistiklere göre oyuncunun hangi stile ait olduğunu "
-    "**Temel Model (V1)**, **Gelişmiş Model (V2)** ve "
-    "**SOM Modeli (V3)** aracılığıyla inceleyebilirsiniz."
+    "**Temel Model (V1)**, **Gelişmiş Model (V2)** aracılığıyla inceleyebilirsiniz."
 )
 
 tab1, tab2, tab3 = st.tabs(["Tekli Oyuncu Analizi", "Oyuncu Karşılaştırma", "🤖 Model Performans Karşılaştırması"])
@@ -223,7 +184,7 @@ with tab1:
     if st.sidebar.button("Oyuncuyu Analiz Et", use_container_width=True):
         stats = np.array([input_data[f] for f in FEATURES])
 
-        col1, col2, col3 = st.columns(3)
+        col1, col2 = st.columns(2)
 
         # Model V1
         c1, sim_v1, _, _ = predict_and_find_similar(
@@ -250,20 +211,7 @@ with tab1:
                     st.error(f"Düşük güven — küme ataması belirsiz (%{confidence_pct:.1f}).")
             st.markdown("#### V2 Uzayındaki Benzer Oyuncular")
             st.dataframe(sim_v2, use_container_width=True, hide_index=True)
-
-        # Model V3 - SOM
-        nearest_player_v3, som_cluster_v3, sim_v3 = predict_som_result(
-            stats,
-            v3_som_coords_df,
-            v3_som_similar_df,
-        )
-
-        with col3:
-            st.markdown("### 🧭 Model V3 (SOM)")
-            st.info(f"**SOM Bölgesi:** {som_cluster_v3}")
-            st.caption(f"En yakın veri seti oyuncusu: {nearest_player_v3}")
-            st.markdown("#### SOM Haritasındaki Benzer Oyuncular")
-            st.dataframe(sim_v3, use_container_width=True, hide_index=True)    
+   
 
         st.divider()
 
