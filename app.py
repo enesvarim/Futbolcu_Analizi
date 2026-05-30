@@ -175,7 +175,7 @@ st.sidebar.markdown(
 
 # Süper Lig oyuncularının isim listesi
 superlig_names = superlig_df["Player"].tolist() if not superlig_df.empty else []
-original_names = players["Player"].tolist()
+original_names = v2_latent_df["Player"].tolist()
 
 # Seçenekleri birleştirelim
 selected_player = st.sidebar.selectbox(
@@ -191,7 +191,7 @@ if selected_player != "-- Manuel Giriş --":
         default_vals = superlig_df.iloc[idx]
     else:
         # Normal oyuncu
-        idx          = players[players["Player"] == selected_player].index[0]
+        idx          = v2_latent_df[v2_latent_df["Player"] == selected_player].index[0]
         default_vals = df_raw.iloc[idx]
 else:
     default_vals = df_raw.mean()
@@ -325,7 +325,7 @@ with tab2:
                     stats = np.array([rows.iloc[0][f] for f in FEATURES])
                     display_name = real_name
                 else:
-                    rows = players[players["Player"] == p_name]
+                    rows = v2_latent_df[v2_latent_df["Player"] == p_name]
                     if rows.empty:
                         st.error(f"❌ '{p_name}' veri setinde bulunamadı.")
                         st.stop()
