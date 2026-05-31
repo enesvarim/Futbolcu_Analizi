@@ -114,7 +114,16 @@ def predict_and_find_similar(
         try:
             gmm = joblib.load(V2_GMM)
             proba = gmm.predict_proba(latent_vec)          # [1, n_clusters]
-            confidence_pct = float(proba.max(axis=1)[0]) * 100  # 0-100 arası
+            
+            # Sıcaklık Ölçekleme (Temperature Scaling) ile kalibrasyon
+            # Yüksek boyutlu uzayda (16-dim) GMM olasılıkları aşırı dikleştiği için T=3.5 ile yumuşatıyoruz.
+            T = 3.5
+            log_proba = np.log(proba + 1e-15)
+            log_proba_scaled = log_proba / T
+            exp_proba = np.exp(log_proba_scaled - np.max(log_proba_scaled))  # Sayısal kararlılık için shift
+            calibrated_proba = exp_proba / np.sum(exp_proba)
+            
+            confidence_pct = float(calibrated_proba.max(axis=1)[0]) * 100  # 0-100 arası
         except Exception as e:
             log.warning(f"GMM confidence hesaplanamadı: {e}")
 
