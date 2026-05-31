@@ -298,13 +298,6 @@ with tab1:
             stats, model_v2, scaler, v2_matrix, v2_latent_df, version="v2"
         )
 
-        # Model V3 - SOM
-        nearest_player_v3, som_cluster_v3, sim_v3 = predict_som_result(
-            stats,
-            v3_som_coords_df,
-            v3_som_similar_df,
-        )
-
         v1_style_name = CLUSTER_NAMES_V1.get(c1, f"Küme {c1}")
         v2_style_name = CLUSTER_NAMES.get(c2, f"Küme {c2}")
 
@@ -318,8 +311,8 @@ with tab1:
         else:
             confidence_text = None
 
-        # Üç model sonucu aynı kart yapısında gösterilir.
-        col1, col2, col3 = st.columns(3)
+        # İki model sonucu aynı kart yapısında gösterilir.
+        col1, col2 = st.columns(2)
 
         with col1:
             render_model_result_card(
@@ -340,17 +333,8 @@ with tab1:
                 confidence_text=confidence_text,
             )
 
-        with col3:
-            render_model_result_card(
-                title="Model V3<br>(SOM)",
-                label="SOM Bölgesi",
-                value=str(som_cluster_v3),
-                sub_text=f"En yakın veri seti oyuncusu: {nearest_player_v3}",
-                version_class="v3",
-            )
-
         # Benzer oyuncu tabloları aynı satır düzeninde gösterilir.
-        table_col1, table_col2, table_col3 = st.columns(3)
+        table_col1, table_col2 = st.columns(2)
 
         with table_col1:
             st.markdown('<div class="model-table-title">V1 Uzayındaki Benzer Oyuncular</div>', unsafe_allow_html=True)
@@ -359,10 +343,6 @@ with tab1:
         with table_col2:
             st.markdown('<div class="model-table-title">V2 Uzayındaki Benzer Oyuncular</div>', unsafe_allow_html=True)
             st.dataframe(sim_v2, use_container_width=True, hide_index=True)
-
-        with table_col3:
-            st.markdown('<div class="model-table-title">SOM Haritasındaki Benzer Oyuncular</div>', unsafe_allow_html=True)
-            st.dataframe(sim_v3, use_container_width=True, hide_index=True)
 
         st.divider()
 
