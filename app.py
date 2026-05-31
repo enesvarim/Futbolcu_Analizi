@@ -216,6 +216,110 @@ st.markdown(
 
 tab1, tab2, tab3 = st.tabs(["Tekli Oyuncu Analizi", "Oyuncu Karşılaştırma", "🤖 Model Performans Karşılaştırması"])
 
+# ---------------------------------------------------------------------------
+# UI Yardımcıları — Model sonuç kartları
+# ---------------------------------------------------------------------------
+st.markdown(
+    """
+    <style>
+        .model-result-card {
+            min-height: 330px;
+            height: 330px;
+            border-radius: 14px;
+            padding: 28px 22px;
+            background: #1f2937;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.22);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+            margin-bottom: 18px;
+        }
+        .model-result-card.v1 { border-left: 7px solid #2f80ed; }
+        .model-result-card.v2 { border-left: 7px solid #ff8c00; }
+        .model-result-card.v3 { border-left: 7px solid #10b981; }
+
+        .model-result-title {
+            color: #ffffff;
+            font-size: 1.55rem;
+            font-weight: 750;
+            line-height: 1.25;
+            margin-bottom: 24px;
+        }
+        .model-result-label {
+            color: #cbd5e1;
+            font-size: 1rem;
+            margin-bottom: 18px;
+        }
+        .model-result-value {
+            font-size: 1.55rem;
+            font-weight: 800;
+            line-height: 1.25;
+            margin-bottom: 18px;
+        }
+        .model-result-value.v1 { color: #2f80ed; }
+        .model-result-value.v2 { color: #ff8c00; }
+        .model-result-value.v3 { color: #10b981; }
+
+        .model-result-sub {
+            color: #cbd5e1;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+        .model-confidence-box {
+            margin-top: 14px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: rgba(16, 185, 129, 0.13);
+            color: #bbf7d0;
+            font-size: 0.92rem;
+            line-height: 1.35;
+        }
+        .model-table-title {
+            min-height: 58px;
+            display: flex;
+            align-items: flex-end;
+            font-size: 1.35rem;
+            font-weight: 750;
+            color: #1f2937;
+            margin: 4px 0 12px 0;
+        }
+        div[data-testid="stDataFrame"] {
+            width: 100%;
+        }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+
+def render_model_result_card(
+    title: str,
+    label: str,
+    value: str,
+    sub_text: str,
+    version_class: str,
+    confidence_text: str | None = None,
+):
+    confidence_html = (
+        f'<div class="model-confidence-box">{confidence_text}</div>'
+        if confidence_text else ""
+    )
+
+    st.markdown(
+        f"""
+        <div class="model-result-card {version_class}">
+            <div class="model-result-title">{title}</div>
+            <div class="model-result-label">{label}</div>
+            <div class="model-result-value {version_class}">{value}</div>
+            <div class="model-result-sub">{sub_text}</div>
+            {confidence_html}
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 # ─────────────────────────────────────────────
 # TAB 1: Tekli Oyuncu Analizi
 # ─────────────────────────────────────────────
@@ -223,33 +327,15 @@ with tab1:
     if st.sidebar.button("Oyuncuyu Analiz Et", use_container_width=True):
         stats = np.array([input_data[f] for f in FEATURES])
 
-        col1, col2, col3 = st.columns(3)
-
         # Model V1
         c1, sim_v1, _, _ = predict_and_find_similar(
             stats, model_v1, scaler, v1_matrix, v1_latent_df, version="v1"
         )
-        with col1:
-            render_cluster_card("Model V1 (Autoencoder)", c1, version="v1")
-            st.markdown("#### V1 Uzayındaki Benzer Oyuncular")
-            st.dataframe(sim_v1, use_container_width=True, hide_index=True)
 
         # Model V2
         c2, sim_v2, _, confidence_pct = predict_and_find_similar(
             stats, model_v2, scaler, v2_matrix, v2_latent_df, version="v2"
         )
-        with col2:
-            render_cluster_card("Model V2 (VAE + GMM)", c2, version="v2")
-            if confidence_pct is not None:
-                st.metric("🎯 Model Güveni", f"%{confidence_pct:.1f}")
-                if confidence_pct >= 80:
-                    st.success(f"Yüksek güven — model bu küme atamasından %{confidence_pct:.1f} emin.")
-                elif confidence_pct >= 60:
-                    st.warning(f"Orta güven — oyuncu birden fazla kümeye yakın olabilir (%{confidence_pct:.1f}).")
-                else:
-                    st.error(f"Düşük güven — küme ataması belirsiz (%{confidence_pct:.1f}).")
-            st.markdown("#### V2 Uzayındaki Benzer Oyuncular")
-            st.dataframe(sim_v2, use_container_width=True, hide_index=True)
 
         # Model V3 - SOM
         nearest_player_v3, som_cluster_v3, sim_v3 = predict_som_result(
@@ -258,12 +344,64 @@ with tab1:
             v3_som_similar_df,
         )
 
+        v1_style_name = CLUSTER_NAMES_V1.get(c1, f"Küme {c1}")
+        v2_style_name = CLUSTER_NAMES.get(c2, f"Küme {c2}")
+
+        if confidence_pct is not None:
+            if confidence_pct >= 80:
+                confidence_text = f"Yüksek güven — model bu küme atamasından %{confidence_pct:.1f} emin."
+            elif confidence_pct >= 60:
+                confidence_text = f"Orta güven — oyuncu birden fazla kümeye yakın olabilir (%{confidence_pct:.1f})."
+            else:
+                confidence_text = f"Düşük güven — küme ataması belirsiz (%{confidence_pct:.1f})."
+        else:
+            confidence_text = None
+
+        # Üç model sonucu aynı kart yapısında gösterilir.
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+            render_model_result_card(
+                title="Model V1<br>(Autoencoder)",
+                label="Tahmini Küme",
+                value=v1_style_name,
+                sub_text=f"(Küme {c1})",
+                version_class="v1",
+            )
+
+        with col2:
+            render_model_result_card(
+                title="Model V2<br>(VAE + GMM)",
+                label="Tespit Edilen Oyun Stili",
+                value=v2_style_name,
+                sub_text=f"(Küme {c2})",
+                version_class="v2",
+                confidence_text=confidence_text,
+            )
+
         with col3:
-            st.markdown("### 🧭 Model V3 (SOM)")
-            st.info(f"**SOM Bölgesi:** {som_cluster_v3}")
-            st.caption(f"En yakın veri seti oyuncusu: {nearest_player_v3}")
-            st.markdown("#### SOM Haritasındaki Benzer Oyuncular")
-            st.dataframe(sim_v3, use_container_width=True, hide_index=True)    
+            render_model_result_card(
+                title="Model V3<br>(SOM)",
+                label="SOM Bölgesi",
+                value=str(som_cluster_v3),
+                sub_text=f"En yakın veri seti oyuncusu: {nearest_player_v3}",
+                version_class="v3",
+            )
+
+        # Benzer oyuncu tabloları aynı satır düzeninde gösterilir.
+        table_col1, table_col2, table_col3 = st.columns(3)
+
+        with table_col1:
+            st.markdown('<div class="model-table-title">V1 Uzayındaki Benzer Oyuncular</div>', unsafe_allow_html=True)
+            st.dataframe(sim_v1, use_container_width=True, hide_index=True)
+
+        with table_col2:
+            st.markdown('<div class="model-table-title">V2 Uzayındaki Benzer Oyuncular</div>', unsafe_allow_html=True)
+            st.dataframe(sim_v2, use_container_width=True, hide_index=True)
+
+        with table_col3:
+            st.markdown('<div class="model-table-title">SOM Haritasındaki Benzer Oyuncular</div>', unsafe_allow_html=True)
+            st.dataframe(sim_v3, use_container_width=True, hide_index=True)
 
         st.divider()
 
@@ -280,9 +418,9 @@ with tab1:
         st.markdown(
             "Haritada hedef oyuncu **✕** ile, en çok benzeyen 5 oyuncu **⭐** ile gösterilir."
         )
-        
+
         display_target_name = selected_player.replace("⭐ ", "")
-        
+
         st.plotly_chart(
             plot_umap(v1_coords_df, sim_v1, display_target_name, "Temel UMAP (V1)", CLUSTER_NAMES_V1),
             use_container_width=True,
